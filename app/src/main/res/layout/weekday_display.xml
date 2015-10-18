@@ -5,17 +5,24 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/monday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/tuesday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/wednesday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/thursday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/friday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/saturday_short"/>
 
-    <TextView style="@style/WeekdayTextView" />
+    <TextView style="@style/WeekdayTextView"
+        android:text="@string/sunday_short"/>
 </LinearLayout>

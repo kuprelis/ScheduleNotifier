@@ -6,17 +6,31 @@
     android:layout_margin="8dp"
     android:orientation="horizontal">
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/monday_short"
+        android:textOn="@string/monday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/tuesday_short"
+        android:textOn="@string/tuesday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/wednesday_short"
+        android:textOn="@string/wednesday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/thursday_short"
+        android:textOn="@string/thursday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/friday_short"
+        android:textOn="@string/friday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/saturday_short"
+        android:textOn="@string/saturday_short"/>
 
-    <Button style="@style/WeekdayButton" />
+    <ToggleButton style="@style/WeekdayButton"
+        android:textOff="@string/sunday_short"
+        android:textOn="@string/sunday_short" />
 </LinearLayout>

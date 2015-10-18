@@ -41,10 +41,10 @@ public class EventManager {
         return null;
     }
 
-    public ArrayList<Event> getEvents(int weekday) {
+    public ArrayList<Event> getEvents(int day) {
         ArrayList<Event> events = new ArrayList<>();
         for (Event e : mEvents) {
-            if (e.isRepeatedOn(weekday))
+            if (e.isRepeated(day))
                 events.add(e);
         }
         return events;
