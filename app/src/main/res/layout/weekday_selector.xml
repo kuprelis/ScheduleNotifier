@@ -32,5 +32,6 @@
 
     <ToggleButton style="@style/WeekdayButton"
         android:textOff="@string/sunday_short"
-        android:textOn="@string/sunday_short" />
+        android:textOn="@string/sunday_short"
+        android:textColor="@color/red800"/>
 </LinearLayout>

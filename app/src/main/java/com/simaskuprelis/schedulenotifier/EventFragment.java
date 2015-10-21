@@ -70,9 +70,12 @@ public class EventFragment extends Fragment {
         });
 
         mSelector = (LinearLayout)v.findViewById(R.id.weekday_selector);
-        for (int i = 0; i < mSelector.getChildCount(); i++)
-            ((ToggleButton)mSelector.getChildAt(i)).setOnCheckedChangeListener(mButtonListener);
-
+        for (int i = 0; i < mSelector.getChildCount(); i++) {
+            ToggleButton tb = (ToggleButton)mSelector.getChildAt(i);
+            tb.setOnCheckedChangeListener(mButtonListener);
+            if (mEvent.isRepeated(i))
+                tb.setChecked(true);
+        }
         return v;
     }
 }
