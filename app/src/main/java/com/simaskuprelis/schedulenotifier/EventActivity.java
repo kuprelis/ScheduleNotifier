@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 
 import java.util.UUID;
 
-public class EventActivity extends SingleFragmentActivity {
+public class EventActivity extends SingleFragmentActivity implements EventFragment.Callbacks {
     private UUID mId;
 
     @Override
@@ -17,5 +17,11 @@ public class EventActivity extends SingleFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         mId = (UUID)getIntent().getSerializableExtra(EventFragment.EXTRA_EVENT_ID);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onEventUpdated(Event event) {
+        if (EventManager.get(this).getEvent(event.getId()) == null)
+            finish();
     }
 }

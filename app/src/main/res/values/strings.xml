@@ -17,10 +17,13 @@
     
     <string name="schedule">Event Schedule</string>
     <string name="new_event">New event</string>
-    <string name="no_events_day">No events for selected day</string>
+    <string name="no_events_day">No events</string>
+    <string name="no_title">no title</string>
 
     <string name="enter_title">Enter a title for the event</string>
     <string name="title">Title</string>
     <string name="time">Time</string>
     <string name="repeat">Repeat</string>
+    <string name="delete_event">Delete event</string>
+    <string name="confirmation">Are you sure?</string>
 </resources>

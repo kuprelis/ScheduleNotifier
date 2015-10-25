@@ -2,6 +2,7 @@ package com.simaskuprelis.schedulenotifier;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
@@ -36,20 +37,19 @@ public class EventListFragment extends ListFragment {
     private CompoundButton.OnCheckedChangeListener mButtonListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!isChecked) return;
-
-            mSelection = mSelector.indexOfChild(buttonView);
-            buttonView.setEnabled(false);
-            for (int i = 0; i < mSelector.getChildCount(); i++) {
-                if (i != mSelection) {
-                    ToggleButton tb = (ToggleButton)mSelector.getChildAt(i);
-                    tb.setChecked(false);
-                    tb.setEnabled(true);
+            if (!isChecked) {
+                if (mSelector.indexOfChild(buttonView) == mSelection) {
+                    mSelection = -1;
+                    updateUI();
                 }
+            } else {
+                mSelection = mSelector.indexOfChild(buttonView);
+                for (int i = 0; i < mSelector.getChildCount(); i++) {
+                    if (i != mSelection)
+                        ((ToggleButton)mSelector.getChildAt(i)).setChecked(false);
+                }
+                updateUI();
             }
-            mEvents.clear();
-            mEvents.addAll(EventManager.get(getActivity()).getEvents(mSelection));
-            ((EventAdapter)getListAdapter()).notifyDataSetChanged();
         }
     };
 
@@ -63,7 +63,8 @@ public class EventListFragment extends ListFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEvents = EventManager.get(getActivity()).getEvents(Event.MONDAY);
+        mSelection = -1;
+        mEvents = EventManager.get(getActivity()).getEvents(mSelection);
         setListAdapter(new EventAdapter(mEvents));
         setHasOptionsMenu(true);
     }
@@ -72,15 +73,9 @@ public class EventListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_event_list, container, false);
 
-        Calendar c = Calendar.getInstance();
-        int day = c.get(Calendar.DAY_OF_WEEK);
         mSelector = (LinearLayout)v.findViewById(R.id.weekday_selector);
-        for (int i = 0; i < mSelector.getChildCount(); i++) {
-            ToggleButton button = (ToggleButton)mSelector.getChildAt(i);
-            button.setOnCheckedChangeListener(mButtonListener);
-            if (i + 2 == day || (i == 6 && day == 1))
-                button.setChecked(true);
-        }
+        for (int i = 0; i < mSelector.getChildCount(); i++)
+            ((ToggleButton)mSelector.getChildAt(i)).setOnCheckedChangeListener(mButtonListener);
 
 
         mNewEventButton = (Button)v.findViewById(R.id.new_event);
@@ -123,6 +118,12 @@ public class EventListFragment extends ListFragment {
         mCallbacks.onEventSelected(e);
     }
 
+    public void updateUI() {
+        mEvents.clear();
+        mEvents.addAll(EventManager.get(getActivity()).getEvents(mSelection));
+        ((EventAdapter)getListAdapter()).notifyDataSetChanged();
+    }
+
     private void createEvent() {
         Event event = new Event();
         EventManager.get(getActivity()).addEvent(event);
@@ -148,7 +149,12 @@ public class EventListFragment extends ListFragment {
             Event e = getItem(position);
 
             TextView title = (TextView)convertView.findViewById(R.id.titleTextView);
-            title.setText(e.getTitle());
+            if (e.getTitle() != null) {
+                title.setText(e.getTitle());
+            } else {
+                title.setText(R.string.no_title);
+                title.setTypeface(title.getTypeface(), Typeface.BOLD_ITALIC);
+            }
 
             int color = getResources().getColor(R.color.blue500);
 

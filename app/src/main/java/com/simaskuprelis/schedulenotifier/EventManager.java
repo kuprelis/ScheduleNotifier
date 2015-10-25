@@ -43,9 +43,13 @@ public class EventManager {
 
     public ArrayList<Event> getEvents(int day) {
         ArrayList<Event> events = new ArrayList<>();
-        for (Event e : mEvents) {
-            if (e.isRepeated(day))
-                events.add(e);
+        if (day == -1) {
+            events.addAll(mEvents);
+        } else {
+            for (Event e : mEvents) {
+                if (e.isRepeated(day))
+                    events.add(e);
+            }
         }
         return events;
     }
