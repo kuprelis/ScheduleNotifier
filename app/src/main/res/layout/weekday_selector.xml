@@ -3,7 +3,6 @@
     android:id="@+id/weekday_selector"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
     android:orientation="horizontal">
 
     <ToggleButton style="@style/WeekdayButton"

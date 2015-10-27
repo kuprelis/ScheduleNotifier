@@ -9,13 +9,13 @@
         <item name="android:background">@drawable/button_weekday</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">1dp</item>
         <item name="android:layout_weight">1</item>
     </style>
 
     <style name="WeekdayTextView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
     </style>
 </resources>

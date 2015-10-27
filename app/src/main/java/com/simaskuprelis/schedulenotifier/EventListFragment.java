@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class EventListFragment extends ListFragment {
     private static final String TAG = "EventListFragment";
@@ -33,25 +35,6 @@ public class EventListFragment extends ListFragment {
     private Button mNewEventButton;
     private LinearLayout mSelector;
     private int mSelection;
-
-    private CompoundButton.OnCheckedChangeListener mButtonListener = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!isChecked) {
-                if (mSelector.indexOfChild(buttonView) == mSelection) {
-                    mSelection = -1;
-                    updateUI();
-                }
-            } else {
-                mSelection = mSelector.indexOfChild(buttonView);
-                for (int i = 0; i < mSelector.getChildCount(); i++) {
-                    if (i != mSelection)
-                        ((ToggleButton)mSelector.getChildAt(i)).setChecked(false);
-                }
-                updateUI();
-            }
-        }
-    };
 
     @Override
     public void onAttach(Context context) {
@@ -74,9 +57,27 @@ public class EventListFragment extends ListFragment {
         View v = inflater.inflate(R.layout.fragment_event_list, container, false);
 
         mSelector = (LinearLayout)v.findViewById(R.id.weekday_selector);
-        for (int i = 0; i < mSelector.getChildCount(); i++)
-            ((ToggleButton)mSelector.getChildAt(i)).setOnCheckedChangeListener(mButtonListener);
-
+        for (int i = 0; i < mSelector.getChildCount(); i++) {
+            ((ToggleButton) mSelector.getChildAt(i))
+                    .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if (!isChecked) {
+                                if (mSelector.indexOfChild(buttonView) == mSelection) {
+                                    mSelection = -1;
+                                    updateUI();
+                                }
+                            } else {
+                                mSelection = mSelector.indexOfChild(buttonView);
+                                for (int i = 0; i < mSelector.getChildCount(); i++) {
+                                    if (i != mSelection)
+                                        ((ToggleButton) mSelector.getChildAt(i)).setChecked(false);
+                                }
+                                updateUI();
+                            }
+                        }
+                    });
+        }
 
         mNewEventButton = (Button)v.findViewById(R.id.new_event);
         mNewEventButton.setOnClickListener(new OnClickListener() {
@@ -148,13 +149,12 @@ public class EventListFragment extends ListFragment {
 
             Event e = getItem(position);
 
-            TextView title = (TextView)convertView.findViewById(R.id.titleTextView);
-            if (e.getTitle() != null) {
-                title.setText(e.getTitle());
-            } else {
-                title.setText(R.string.no_title);
-                title.setTypeface(title.getTypeface(), Typeface.BOLD_ITALIC);
-            }
+            TextView titleView = (TextView)convertView.findViewById(R.id.titleTextView);
+            String title = e.getTitle();
+            if (title != null && title.length() > 0)
+                titleView.setText(e.getTitle());
+            else
+                titleView.setText(R.string.no_title);
 
             int color = getResources().getColor(R.color.blue500);
 
@@ -165,8 +165,15 @@ public class EventListFragment extends ListFragment {
                     tv.setTextColor(color);
             }
 
-            TextView time = (TextView)convertView.findViewById(R.id.timeTextView);
-            time.setText("fix me");
+            TextView timeView = (TextView)convertView.findViewById(R.id.timeTextView);
+            Date start = e.getStartDate();
+            Date end = e.getEndDate();
+            String time;
+            if (DateFormat.is24HourFormat(getActivity()))
+                time = DateFormat.format("HH:mm", start) + " - " + DateFormat.format("HH:mm", end);
+            else
+                time = DateFormat.format("K:mm a", start) + " - " + DateFormat.format("K:mm a", end);
+            timeView.setText(time);
 
             return convertView;
         }

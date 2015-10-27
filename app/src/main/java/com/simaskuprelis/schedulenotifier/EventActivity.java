@@ -21,6 +21,7 @@ public class EventActivity extends SingleFragmentActivity implements EventFragme
 
     @Override
     public void onEventUpdated(Event event) {
+        setResult(RESULT_OK);
         if (EventManager.get(this).getEvent(event.getId()) == null)
             finish();
     }

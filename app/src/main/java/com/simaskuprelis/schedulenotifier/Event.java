@@ -21,6 +21,8 @@ public class Event {
     public Event() {
         mId = UUID.randomUUID();
         mRepeat = new boolean[7];
+        mStartDate = new Date();
+        mEndDate = new Date();
     }
 
     public Date getEndDate() {
