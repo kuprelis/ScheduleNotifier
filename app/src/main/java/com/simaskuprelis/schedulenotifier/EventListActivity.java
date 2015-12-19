@@ -29,6 +29,7 @@ public class EventListActivity extends SingleFragmentActivity
             EventListFragment fragment =
                     (EventListFragment)fm.findFragmentById(R.id.fragmentContainer);
             fragment.updateUI();
+            EventManager.get(this).save();
         }
     }
 

@@ -1,12 +1,34 @@
 package com.simaskuprelis.schedulenotifier;
 
 import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class EventManager {
     private static final String TAG = "EventManager";
+    private static final String FILENAME = "events.json";
 
     private static EventManager sEventManager;
     private Context mAppContext;
@@ -14,7 +36,13 @@ public class EventManager {
 
     private EventManager(Context appContext) {
         mAppContext = appContext;
-        mEvents = new ArrayList<>();
+        try {
+            mEvents = loadEvents();
+            Log.i(TAG, "Events loaded");
+        } catch (Exception e) {
+            mEvents = new ArrayList<>();
+            Log.e(TAG, "Error loading events: " + e);
+        }
     }
 
     public static EventManager get(Context c) {
@@ -52,5 +80,52 @@ public class EventManager {
             }
         }
         return events;
+    }
+
+    private void saveEvents() throws IOException {
+        Gson gson = new Gson();
+        JSONArray array = new JSONArray();
+        for (Event e : mEvents) array.put(gson.toJson(e));
+        Writer writer = null;
+        try {
+            OutputStream out = mAppContext.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            writer = new OutputStreamWriter(out);
+            writer.write(array.toString());
+        } finally {
+            if (writer != null) writer.close();
+        }
+    }
+
+    private ArrayList<Event> loadEvents() throws IOException, JSONException {
+        ArrayList<Event> events = new ArrayList<>();
+        BufferedReader reader = null;
+        try {
+            InputStream in = mAppContext.openFileInput(FILENAME);
+            reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) jsonString.append(line);
+            JSONArray array = (JSONArray)new JSONTokener(jsonString.toString()).nextValue();
+            Gson gson = new Gson();
+            for (int i = 0; i < array.length(); i++)
+                events.add(gson.fromJson(array.getString(i), Event.class));
+        } catch (FileNotFoundException e) {
+            // Only on fresh start
+        } finally {
+            if (reader != null)
+                reader.close();
+        }
+        return events;
+    }
+
+    public boolean save() {
+        try {
+            saveEvents();
+            Log.i(TAG, "Events saved");
+            return true;
+        } catch (IOException ioe) {
+            Log.e(TAG, "Error saving events: " + ioe);
+            return false;
+        }
     }
 }

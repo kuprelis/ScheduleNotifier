@@ -96,6 +96,8 @@ public class EventFragment extends Fragment {
         mSelector = (LinearLayout)v.findViewById(R.id.weekday_selector);
         for (int i = 0; i < mSelector.getChildCount(); i++) {
             ToggleButton tb = (ToggleButton)mSelector.getChildAt(i);
+            if (mEvent.isRepeated(i))
+                tb.setChecked(true);
             tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -104,8 +106,6 @@ public class EventFragment extends Fragment {
                     mCallbacks.onEventUpdated(mEvent);
                 }
             });
-            if (mEvent.isRepeated(i))
-                tb.setChecked(true);
         }
 
         mStartButton = (Button)v.findViewById(R.id.startTimeButton);
