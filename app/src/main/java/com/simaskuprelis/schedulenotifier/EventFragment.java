@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -82,6 +83,7 @@ public class EventFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (s.toString().equals(mEvent.getTitle())) return;
                 mEvent.setTitle(s.toString());
                 mCallbacks.onEventUpdated(mEvent);
             }

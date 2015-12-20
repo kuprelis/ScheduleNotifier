@@ -5,4 +5,5 @@
     <color name="blue800">#1565C0</color>
     <color name="red800">#C62828</color>
     <color name="gray_btn">#D6D7D7</color>
+    <color name="gray_txt">#6D6D6D</color>
 </resources>

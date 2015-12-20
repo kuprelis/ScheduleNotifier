@@ -156,13 +156,16 @@ public class EventListFragment extends ListFragment {
             else
                 titleView.setText(R.string.no_title);
 
-            int color = getResources().getColor(R.color.blue500);
+            int highlight = getResources().getColor(R.color.blue500);
+            int lowlight = getResources().getColor(R.color.gray_txt);
 
             LinearLayout display = (LinearLayout)convertView.findViewById(R.id.weekday_display);
             for (int i = 0; i < display.getChildCount(); i++) {
                 TextView tv = (TextView)display.getChildAt(i);
                 if (e.isRepeated(i))
-                    tv.setTextColor(color);
+                    tv.setTextColor(highlight);
+                else
+                    tv.setTextColor(lowlight);
             }
 
             TextView timeView = (TextView)convertView.findViewById(R.id.timeTextView);
