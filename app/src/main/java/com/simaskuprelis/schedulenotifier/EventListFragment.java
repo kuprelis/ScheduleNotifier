@@ -1,13 +1,15 @@
 package com.simaskuprelis.schedulenotifier;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateFormat;
-import android.util.Log;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -24,7 +28,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 public class EventListFragment extends ListFragment {
@@ -51,7 +54,7 @@ public class EventListFragment extends ListFragment {
         setListAdapter(new EventAdapter(mEvents));
         setHasOptionsMenu(true);
     }
-
+    @TargetApi(11)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_event_list, container, false);
@@ -86,6 +89,53 @@ public class EventListFragment extends ListFragment {
                 createEvent();
             }
         });
+        ListView lv = (ListView)v.findViewById(android.R.id.list);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            registerForContextMenu(lv);
+        } else {
+            lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            lv.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+                @Override
+                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+                }
+
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    mode.getMenuInflater().inflate(R.menu.event_list_item_context, menu);
+                    toggleSelector();
+                    return true;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.menu_delete_event:
+                            EventAdapter ea = (EventAdapter)getListAdapter();
+                            EventManager em = EventManager.get(getActivity());
+                            for (int i = 0; i < ea.getCount(); i++) {
+                                if (getListView().isItemChecked(i))
+                                    em.deleteEvent(ea.getItem(i));
+                            }
+                            mode.finish();
+                            updateUI();
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                    toggleSelector();
+                }
+            });
+        }
         return v;
     }
 
@@ -114,6 +164,24 @@ public class EventListFragment extends ListFragment {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        getActivity().getMenuInflater().inflate(R.menu.event_list_item_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int pos = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
+        Event e = ((EventAdapter)getListAdapter()).getItem(pos);
+
+        if (item.getItemId() == R.id.menu_delete_event) {
+            EventManager.get(getActivity()).deleteEvent(e);
+            updateUI();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Event e = ((EventAdapter)getListAdapter()).getItem(position);
         mCallbacks.onEventSelected(e, mSelection);
@@ -129,6 +197,13 @@ public class EventListFragment extends ListFragment {
         Event event = new Event();
         EventManager.get(getActivity()).addEvent(event);
         mCallbacks.onEventSelected(event, mSelection);
+    }
+
+    private void toggleSelector() {
+        for (int i = 0; i < mSelector.getChildCount(); i++) {
+            View v = mSelector.getChildAt(i);
+            v.setEnabled(!v.isEnabled());
+        }
     }
 
     public interface Callbacks {
