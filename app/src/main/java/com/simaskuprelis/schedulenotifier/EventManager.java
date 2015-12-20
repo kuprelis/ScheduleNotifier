@@ -1,22 +1,16 @@
 package com.simaskuprelis.schedulenotifier;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +18,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.UUID;
 
 public class EventManager {
@@ -119,6 +115,16 @@ public class EventManager {
     }
 
     public boolean save() {
+        Collections.sort(mEvents, new Comparator<Event>() {
+            @Override
+            public int compare(Event lhs, Event rhs) {
+                long a = lhs.getStartDate().getTime();
+                long b = rhs.getStartDate().getTime();
+                if (a > b) return 1;
+                if (a < b) return -1;
+                return 0;
+            }
+        });
         try {
             saveEvents();
             Log.i(TAG, "Events saved");

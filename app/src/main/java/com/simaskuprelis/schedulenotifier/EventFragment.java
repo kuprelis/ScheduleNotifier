@@ -69,10 +69,8 @@ public class EventFragment extends Fragment {
 
         mTitleField = (EditText)v.findViewById(R.id.titleField);
         String title = mEvent.getTitle();
-        if (title != null && title.length() > 0) {
+        if (title != null && title.length() > 0)
             mTitleField.setText(mEvent.getTitle());
-            getActivity().setTitle(mEvent.getTitle());
-        }
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -85,10 +83,6 @@ public class EventFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 mEvent.setTitle(s.toString());
-                if (mEvent.getTitle().length() > 0)
-                    getActivity().setTitle(mEvent.getTitle());
-                else
-                    getActivity().setTitle(getString(R.string.edit_event));
                 mCallbacks.onEventUpdated(mEvent);
             }
         });

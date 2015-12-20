@@ -116,7 +116,7 @@ public class EventListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Event e = ((EventAdapter)getListAdapter()).getItem(position);
-        mCallbacks.onEventSelected(e);
+        mCallbacks.onEventSelected(e, mSelection);
     }
 
     public void updateUI() {
@@ -128,11 +128,11 @@ public class EventListFragment extends ListFragment {
     private void createEvent() {
         Event event = new Event();
         EventManager.get(getActivity()).addEvent(event);
-        mCallbacks.onEventSelected(event);
+        mCallbacks.onEventSelected(event, mSelection);
     }
 
     public interface Callbacks {
-        void onEventSelected(Event event);
+        void onEventSelected(Event event, int day);
     }
 
     private class EventAdapter extends ArrayAdapter<Event> {

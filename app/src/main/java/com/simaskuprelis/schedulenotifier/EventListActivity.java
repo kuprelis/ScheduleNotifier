@@ -1,6 +1,5 @@
 package com.simaskuprelis.schedulenotifier;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,18 +24,19 @@ public class EventListActivity extends SingleFragmentActivity
         if (resultCode != RESULT_OK) return;
 
         if (requestCode == REQUEST_EDIT) {
+            EventManager.get(this).save();
             FragmentManager fm = getSupportFragmentManager();
             EventListFragment fragment =
                     (EventListFragment)fm.findFragmentById(R.id.fragmentContainer);
             fragment.updateUI();
-            EventManager.get(this).save();
         }
     }
 
     @Override
-    public void onEventSelected(Event event) {
-        Intent i = new Intent(this, EventActivity.class);
+    public void onEventSelected(Event event, int day) {
+        Intent i = new Intent(this, EventPagerActivity.class);
         i.putExtra(EventFragment.EXTRA_EVENT_ID, event.getId());
+        i.putExtra(EventPagerActivity.EXTRA_DAY, day);
         startActivityForResult(i, REQUEST_EDIT);
     }
 }
