@@ -114,6 +114,8 @@ public class EventManager {
         return events;
     }
 
+
+
     public boolean save() {
         Collections.sort(mEvents, new Comparator<Event>() {
             @Override

@@ -5,10 +5,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -18,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -126,6 +128,10 @@ public class EventFragment extends Fragment {
         });
         updateDate();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                && NavUtils.getParentActivityName(getActivity()) != null)
+            ((AppCompatActivity)getActivity())
+                    .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
     }
 
@@ -150,6 +156,11 @@ public class EventFragment extends Fragment {
                         })
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();
+                return true;
+
+            case android.R.id.home:
+                if (NavUtils.getParentActivityName(getActivity()) != null)
+                    NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
 
             default:
@@ -178,11 +189,11 @@ public class EventFragment extends Fragment {
 
     private void updateDate() {
         if (DateFormat.is24HourFormat(getActivity())) {
-            mStartButton.setText(DateFormat.format("HH:mm", mEvent.getStartDate()));
-            mEndButton.setText(DateFormat.format("HH:mm", mEvent.getEndDate()));
+            mStartButton.setText(DateFormat.format("kk:mm", mEvent.getStartDate()));
+            mEndButton.setText(DateFormat.format("kk:mm", mEvent.getEndDate()));
         } else {
-            mStartButton.setText(DateFormat.format("K:mm a", mEvent.getStartDate()));
-            mEndButton.setText(DateFormat.format("K:mm a", mEvent.getEndDate()));
+            mStartButton.setText(DateFormat.format("h:mm a", mEvent.getStartDate()));
+            mEndButton.setText(DateFormat.format("h:mm a", mEvent.getEndDate()));
         }
     }
 

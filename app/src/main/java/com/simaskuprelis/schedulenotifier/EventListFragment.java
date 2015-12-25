@@ -7,6 +7,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.view.ActionMode;
 import android.view.ContextMenu;
@@ -54,6 +56,7 @@ public class EventListFragment extends ListFragment {
         setListAdapter(new EventAdapter(mEvents));
         setHasOptionsMenu(true);
     }
+
     @TargetApi(11)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class EventListFragment extends ListFragment {
                                 }
                                 updateUI();
                             }
+                            mCallbacks.onDayChanged(mSelection);
                         }
                     });
         }
@@ -89,6 +93,7 @@ public class EventListFragment extends ListFragment {
                 createEvent();
             }
         });
+
         ListView lv = (ListView)v.findViewById(android.R.id.list);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             registerForContextMenu(lv);
@@ -136,6 +141,11 @@ public class EventListFragment extends ListFragment {
                 }
             });
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                && NavUtils.getParentActivityName(getActivity()) != null)
+            ((AppCompatActivity)getActivity())
+                    .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
     }
 
@@ -156,6 +166,11 @@ public class EventListFragment extends ListFragment {
         switch (item.getItemId()) {
             case R.id.menu_new_event:
                 createEvent();
+                return true;
+
+            case android.R.id.home:
+                if (NavUtils.getParentActivityName(getActivity()) != null)
+                    NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
 
             default:
@@ -184,7 +199,7 @@ public class EventListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Event e = ((EventAdapter)getListAdapter()).getItem(position);
-        mCallbacks.onEventSelected(e, mSelection);
+        mCallbacks.onEventSelected(e);
     }
 
     public void updateUI() {
@@ -195,8 +210,9 @@ public class EventListFragment extends ListFragment {
 
     private void createEvent() {
         Event event = new Event();
+        if (mSelection != -1) event.setRepeated(mSelection, true);
         EventManager.get(getActivity()).addEvent(event);
-        mCallbacks.onEventSelected(event, mSelection);
+        mCallbacks.onEventSelected(event);
     }
 
     private void toggleSelector() {
@@ -207,7 +223,8 @@ public class EventListFragment extends ListFragment {
     }
 
     public interface Callbacks {
-        void onEventSelected(Event event, int day);
+        void onEventSelected(Event event);
+        void onDayChanged(int day);
     }
 
     private class EventAdapter extends ArrayAdapter<Event> {
@@ -248,9 +265,9 @@ public class EventListFragment extends ListFragment {
             Date end = e.getEndDate();
             String time;
             if (DateFormat.is24HourFormat(getActivity()))
-                time = DateFormat.format("HH:mm", start) + " - " + DateFormat.format("HH:mm", end);
+                time = DateFormat.format("kk:mm", start) + " - " + DateFormat.format("kk:mm", end);
             else
-                time = DateFormat.format("K:mm a", start) + " - " + DateFormat.format("K:mm a", end);
+                time = DateFormat.format("h:mm a", start) + " - " + DateFormat.format("h:mm a", end);
             timeView.setText(time);
 
             return convertView;

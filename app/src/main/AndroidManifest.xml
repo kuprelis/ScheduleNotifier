@@ -19,10 +19,16 @@
         </activity>
 
         <activity android:label="@string/schedule"
-            android:name=".EventListActivity"/>
+            android:name=".EventListActivity" >
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".TimerActivity" />
+        </activity>
 
         <activity android:label="@string/edit_event"
-            android:name=".EventPagerActivity"/>
+            android:name=".EventPagerActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".EventListActivity" />
+        </activity>
 
     </application>
 
