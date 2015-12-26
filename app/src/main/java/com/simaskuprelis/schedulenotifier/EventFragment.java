@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class EventFragment extends Fragment {
@@ -111,7 +110,7 @@ public class EventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                TimePickerFragment dialog = TimePickerFragment.newInstance(mEvent.getStartDate());
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mEvent.getStartTime());
                 dialog.setTargetFragment(EventFragment.this, REQUEST_START_TIME);
                 dialog.show(fm, DIALOG_TIME);
             }
@@ -121,7 +120,7 @@ public class EventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                TimePickerFragment dialog = TimePickerFragment.newInstance(mEvent.getEndDate());
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mEvent.getEndTime());
                 dialog.setTargetFragment(EventFragment.this, REQUEST_END_TIME);
                 dialog.show(fm, DIALOG_TIME);
             }
@@ -174,13 +173,13 @@ public class EventFragment extends Fragment {
 
         switch (requestCode) {
             case REQUEST_START_TIME:
-                mEvent.setStartDate((Date)data.getSerializableExtra(TimePickerFragment.EXTRA_DATE));
+                mEvent.setStartTime(data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0));
                 mCallbacks.onEventUpdated(mEvent);
                 updateDate();
                 break;
 
             case REQUEST_END_TIME:
-                mEvent.setEndDate((Date)data.getSerializableExtra(TimePickerFragment.EXTRA_DATE));
+                mEvent.setEndTime(data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0));
                 mCallbacks.onEventUpdated(mEvent);
                 updateDate();
                 break;
@@ -188,13 +187,9 @@ public class EventFragment extends Fragment {
     }
 
     private void updateDate() {
-        if (DateFormat.is24HourFormat(getActivity())) {
-            mStartButton.setText(DateFormat.format("kk:mm", mEvent.getStartDate()));
-            mEndButton.setText(DateFormat.format("kk:mm", mEvent.getEndDate()));
-        } else {
-            mStartButton.setText(DateFormat.format("h:mm a", mEvent.getStartDate()));
-            mEndButton.setText(DateFormat.format("h:mm a", mEvent.getEndDate()));
-        }
+        boolean is24hour = DateFormat.is24HourFormat(getActivity());
+        mStartButton.setText(Event.formatTime(mEvent.getStartTime(), is24hour));
+        mEndButton.setText(Event.formatTime(mEvent.getEndTime(), is24hour));
     }
 
     public interface Callbacks {

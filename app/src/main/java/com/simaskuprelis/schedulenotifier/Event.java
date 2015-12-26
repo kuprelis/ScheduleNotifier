@@ -1,19 +1,13 @@
 package com.simaskuprelis.schedulenotifier;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class Event {
-    public static final int MONDAY = 0;
-    public static final int TUESDAY = 1;
-    public static final int WEDNESDAY = 2;
-    public static final int THURSDAY = 3;
-    public static final int FRIDAY = 4;
-    public static final int SATURDAY = 5;
-    public static final int SUNDAY = 6;
+    private static final String TAG = "Event";
 
-    private Date mEndDate;
-    private Date mStartDate;
+    private int mStartTime;
+    private int mEndTime;
     private boolean[] mRepeat;
     private UUID mId;
     private String mTitle;
@@ -21,24 +15,26 @@ public class Event {
     public Event() {
         mId = UUID.randomUUID();
         mRepeat = new boolean[7];
-        mStartDate = new Date();
-        mEndDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        int time = cal.get(Calendar.HOUR_OF_DAY) * 100 + cal.get(Calendar.MINUTE);
+        mStartTime = time;
+        mEndTime = time;
     }
 
-    public Date getEndDate() {
-        return mEndDate;
+    public int getStartTime() {
+        return mStartTime;
     }
 
-    public void setEndDate(Date endDate) {
-        mEndDate = endDate;
+    public void setStartTime(int startTime) {
+        mStartTime = startTime;
     }
 
-    public Date getStartDate() {
-        return mStartDate;
+    public int getEndTime() {
+        return mEndTime;
     }
 
-    public void setStartDate(Date startDate) {
-        mStartDate = startDate;
+    public void setEndTime(int endTime) {
+        mEndTime = endTime;
     }
 
     public boolean isRepeated(int day) {
@@ -59,5 +55,25 @@ public class Event {
 
     public UUID getId() {
         return mId;
+    }
+
+    public static String formatTime(int time, boolean is24hour) {
+        StringBuilder sb = new StringBuilder();
+        int hour = time / 100;
+        int minute = time % 100;
+        String ampm = "";
+        if (is24hour) {
+            if (hour < 10) sb.append('0');
+        } else {
+            ampm = hour / 12 == 0 ? " AM" : " PM";
+            if (hour > 12) hour = hour % 12;
+            if (hour == 0) hour = 12;
+        }
+        sb.append(hour);
+        sb.append(':');
+        if (minute < 10) sb.append('0');
+        sb.append(minute);
+        sb.append(ampm);
+        return sb.toString();
     }
 }

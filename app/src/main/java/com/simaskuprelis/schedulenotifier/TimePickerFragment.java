@@ -1,10 +1,8 @@
 package com.simaskuprelis.schedulenotifier;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,19 +10,15 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
-import java.util.Calendar;
-import java.util.Date;
-
 public class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-    public static final String EXTRA_DATE = "com.simaskuprelis.schedulenotifier.date";
+    public static final String EXTRA_TIME = "com.simaskuprelis.schedulenotifier.time";
 
-    private Date mDate;
-    private Calendar mCalendar;
+    private int mTime;
 
-    public static TimePickerFragment newInstance(Date date) {
+    public static TimePickerFragment newInstance(int time) {
         Bundle args = new Bundle();
         TimePickerFragment fragment = new TimePickerFragment();
-        args.putSerializable(EXTRA_DATE, date);
+        args.putInt(EXTRA_TIME, time);
         fragment.setArguments(args);
         return fragment;
     }
@@ -32,11 +26,9 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDate = (Date)getArguments().getSerializable(EXTRA_DATE);
-        mCalendar = Calendar.getInstance();
-        mCalendar.setTime(mDate);
-        int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
-        int minute = mCalendar.get(Calendar.MINUTE);
+        mTime = getArguments().getInt(EXTRA_TIME);
+        int hour = mTime / 100;
+        int minute = mTime % 100;
         TimePickerDialog tpd = new TimePickerDialog(getActivity(), this, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
         tpd.setTitle(null);
@@ -45,16 +37,14 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        mCalendar.set(Calendar.MINUTE, minute);
-        mDate = mCalendar.getTime();
+        mTime = hourOfDay * 100 + minute;
         sendResult(Activity.RESULT_OK);
     }
 
     private void sendResult(int resultCode) {
         if (getTargetFragment() == null) return;
         Intent i = new Intent();
-        i.putExtra(EXTRA_DATE, mDate);
+        i.putExtra(EXTRA_TIME, mTime);
         getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, i);
     }
 }

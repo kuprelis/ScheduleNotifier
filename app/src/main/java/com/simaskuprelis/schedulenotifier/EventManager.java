@@ -120,8 +120,8 @@ public class EventManager {
         Collections.sort(mEvents, new Comparator<Event>() {
             @Override
             public int compare(Event lhs, Event rhs) {
-                long a = lhs.getStartDate().getTime();
-                long b = rhs.getStartDate().getTime();
+                long a = lhs.getStartTime();
+                long b = rhs.getStartTime();
                 if (a > b) return 1;
                 if (a < b) return -1;
                 return 0;

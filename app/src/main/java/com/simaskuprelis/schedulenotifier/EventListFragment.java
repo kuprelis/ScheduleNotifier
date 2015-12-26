@@ -30,7 +30,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class EventListFragment extends ListFragment {
     private static final String TAG = "EventListFragment";
@@ -261,14 +260,12 @@ public class EventListFragment extends ListFragment {
             }
 
             TextView timeView = (TextView)convertView.findViewById(R.id.timeTextView);
-            Date start = e.getStartDate();
-            Date end = e.getEndDate();
-            String time;
-            if (DateFormat.is24HourFormat(getActivity()))
-                time = DateFormat.format("kk:mm", start) + " - " + DateFormat.format("kk:mm", end);
-            else
-                time = DateFormat.format("h:mm a", start) + " - " + DateFormat.format("h:mm a", end);
-            timeView.setText(time);
+            StringBuilder sb = new StringBuilder();
+            boolean is24hour = DateFormat.is24HourFormat(getActivity());
+            sb.append(Event.formatTime(e.getStartTime(), is24hour));
+            sb.append(" - ");
+            sb.append(Event.formatTime(e.getEndTime(), is24hour));
+            timeView.setText(sb.toString());
 
             return convertView;
         }
