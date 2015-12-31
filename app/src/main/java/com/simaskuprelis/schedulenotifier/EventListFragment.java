@@ -7,8 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.view.ActionMode;
 import android.view.ContextMenu;
@@ -140,11 +138,6 @@ public class EventListFragment extends ListFragment {
                 }
             });
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-                && NavUtils.getParentActivityName(getActivity()) != null)
-            ((AppCompatActivity)getActivity())
-                    .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
     }
 
@@ -161,15 +154,25 @@ public class EventListFragment extends ListFragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        boolean notify = TimerService.isServiceAlarmOn(getActivity());
+        menu.findItem(R.id.menu_notify)
+                .setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_new_event:
                 createEvent();
                 return true;
 
-            case android.R.id.home:
-                if (NavUtils.getParentActivityName(getActivity()) != null)
-                    NavUtils.navigateUpFromSameTask(getActivity());
+            case R.id.menu_notify:
+                boolean notify = TimerService.isServiceAlarmOn(getActivity());
+                TimerService.setServiceAlarm(getActivity(), !notify);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                    getActivity().invalidateOptionsMenu();
                 return true;
 
             default:

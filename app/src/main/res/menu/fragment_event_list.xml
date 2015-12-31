@@ -5,4 +5,6 @@
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/new_event"
         app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/menu_notify"
+        android:title="@string/notifications_disable"/>
 </menu>

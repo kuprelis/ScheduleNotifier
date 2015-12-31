@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.UUID;
@@ -170,20 +171,31 @@ public class EventFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) return;
-
+        int time = data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0);
         switch (requestCode) {
             case REQUEST_START_TIME:
-                mEvent.setStartTime(data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0));
-                mCallbacks.onEventUpdated(mEvent);
-                updateDate();
+                if (time >= mEvent.getEndTime()) {
+                    Toast.makeText(getActivity(), R.string.invalid_time, Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    mEvent.setStartTime(time);
+                }
                 break;
 
             case REQUEST_END_TIME:
-                mEvent.setEndTime(data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0));
-                mCallbacks.onEventUpdated(mEvent);
-                updateDate();
+                if (time <= mEvent.getStartTime()) {
+                    Toast.makeText(getActivity(), R.string.invalid_time, Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    mEvent.setEndTime(time);
+                }
                 break;
+
+            default:
+                return;
         }
+        mCallbacks.onEventUpdated(mEvent);
+        updateDate();
     }
 
     private void updateDate() {

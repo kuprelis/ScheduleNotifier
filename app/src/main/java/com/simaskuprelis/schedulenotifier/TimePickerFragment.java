@@ -27,8 +27,8 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mTime = getArguments().getInt(EXTRA_TIME);
-        int hour = mTime / 100;
-        int minute = mTime % 100;
+        int hour = mTime / 60;
+        int minute = mTime % 60;
         TimePickerDialog tpd = new TimePickerDialog(getActivity(), this, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
         tpd.setTitle(null);
@@ -37,7 +37,7 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mTime = hourOfDay * 100 + minute;
+        mTime = hourOfDay * 60 + minute;
         sendResult(Activity.RESULT_OK);
     }
 
