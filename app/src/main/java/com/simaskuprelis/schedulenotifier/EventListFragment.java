@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateFormat;
@@ -129,6 +128,7 @@ public class EventListFragment extends ListFragment {
                             }
                             mode.finish();
                             updateUI();
+                            TimerService.restartService(getActivity());
                             return true;
                         default:
                             return false;
@@ -165,8 +165,7 @@ public class EventListFragment extends ListFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        boolean notify = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getBoolean(TimerService.PREF_NOTIFY, false);
+        boolean notify = TimerService.isServiceAlarmOn(getActivity());
         menu.findItem(R.id.menu_notify)
                 .setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
     }
@@ -179,8 +178,7 @@ public class EventListFragment extends ListFragment {
                 return true;
 
             case R.id.menu_notify:
-                boolean notify = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .getBoolean(TimerService.PREF_NOTIFY, false);
+                boolean notify = TimerService.isServiceAlarmOn(getActivity());
                 TimerService.setServiceAlarm(getActivity(), !notify);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
                     getActivity().invalidateOptionsMenu();
@@ -204,6 +202,7 @@ public class EventListFragment extends ListFragment {
         if (item.getItemId() == R.id.menu_delete_event) {
             EventManager.get(getActivity()).deleteEvent(e);
             updateUI();
+            TimerService.restartService(getActivity());
             return true;
         }
         return super.onContextItemSelected(item);

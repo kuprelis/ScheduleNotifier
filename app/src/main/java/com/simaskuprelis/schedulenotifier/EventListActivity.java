@@ -3,7 +3,6 @@ package com.simaskuprelis.schedulenotifier;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,11 +28,11 @@ public class EventListActivity extends SingleFragmentActivity
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         if (!sp.contains(TimerService.PREF_NOTIFY))
-            sp.edit().putBoolean(TimerService.PREF_NOTIFY, true).commit();
+            TimerService.setServiceAlarm(this, true);
     }
 
     @Override

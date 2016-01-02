@@ -142,4 +142,16 @@ public class TimerService extends IntentService {
         }
         sp.putBoolean(PREF_NOTIFY, isOn).commit();
     }
+
+    public static boolean isServiceAlarmOn(Context context) {
+        Intent i = new Intent(context, TimerService.class);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
+        return pi != null;
+    }
+
+    public static void restartService(Context context) {
+        if (!isServiceAlarmOn(context)) return;
+        setServiceAlarm(context, false);
+        setServiceAlarm(context, true);
+    }
 }

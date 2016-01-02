@@ -2,11 +2,15 @@ package com.simaskuprelis.schedulenotifier;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +29,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.UUID;
@@ -42,6 +45,18 @@ public class EventFragment extends Fragment {
     private Button mStartButton;
     private Button mEndButton;
     private Callbacks mCallbacks;
+
+    public static final String ACTION_RESTART_TIMER =
+            "com.simaskuprelis.schedulenotifier.RESTART_TIMER";
+    public static final String PERM_PRIVATE = "com.simaskuprelis.schedulenotifier.PRIVATE";
+    public static final String PREF_RESTART = "restart";
+
+    private BroadcastReceiver mOnRestartService = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setResultCode(Activity.RESULT_CANCELED);
+        }
+    };
 
     public static EventFragment newInstance(UUID id) {
         Bundle args = new Bundle();
@@ -133,6 +148,31 @@ public class EventFragment extends Fragment {
             ((AppCompatActivity) getActivity())
                     .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(ACTION_RESTART_TIMER);
+        Context c = getActivity();
+        c.registerReceiver(mOnRestartService, filter);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        if (!sp.contains(PREF_RESTART)) {
+            boolean restart = TimerService.isServiceAlarmOn(c);
+            if (restart) TimerService.setServiceAlarm(c, false);
+            sp.edit()
+                    .putBoolean(PREF_RESTART, restart)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Context c = getActivity();
+        c.unregisterReceiver(mOnRestartService);
+        c.sendOrderedBroadcast(new Intent(ACTION_RESTART_TIMER), PERM_PRIVATE, null, null,
+                Activity.RESULT_OK, null, null);
     }
 
     @Override
