@@ -26,5 +26,4 @@
     <string name="delete_event">Delete event</string>
     <string name="confirmation">Are you sure?</string>
     <string name="set_time">Set the time</string>
-    <string name="invalid_time">Invalid time</string>
 </resources>

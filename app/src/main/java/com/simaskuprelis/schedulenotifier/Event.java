@@ -16,7 +16,7 @@ public class Event {
         mId = UUID.randomUUID();
         mRepeat = new boolean[7];
         Calendar cal = Calendar.getInstance();
-        int time = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+        int time = (cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)) * 60;
         mStartTime = time;
         mEndTime = time;
     }
@@ -59,6 +59,7 @@ public class Event {
 
     public static String formatTime(int time, boolean is24hour) {
         StringBuilder sb = new StringBuilder();
+        time /= 60;
         int hour = time / 60;
         int minute = time % 60;
         String ampm = "";

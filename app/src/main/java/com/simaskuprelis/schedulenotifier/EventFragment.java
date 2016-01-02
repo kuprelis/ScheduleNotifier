@@ -55,12 +55,12 @@ public class EventFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity)
-            mCallbacks = (Callbacks)context;
+            mCallbacks = (Callbacks) context;
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        UUID id = (UUID)getArguments().getSerializable(EXTRA_EVENT_ID);
+        UUID id = (UUID) getArguments().getSerializable(EXTRA_EVENT_ID);
         mEvent = EventManager.get(getActivity()).getEvent(id);
         setHasOptionsMenu(true);
     }
@@ -70,7 +70,7 @@ public class EventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_event, container, false);
 
-        mTitleField = (EditText)v.findViewById(R.id.titleField);
+        mTitleField = (EditText) v.findViewById(R.id.titleField);
         String title = mEvent.getTitle();
         if (title != null && title.length() > 0)
             mTitleField.setText(mEvent.getTitle());
@@ -91,9 +91,9 @@ public class EventFragment extends Fragment {
             }
         });
 
-        mSelector = (LinearLayout)v.findViewById(R.id.weekday_selector);
+        mSelector = (LinearLayout) v.findViewById(R.id.weekday_selector);
         for (int i = 0; i < mSelector.getChildCount(); i++) {
-            ToggleButton tb = (ToggleButton)mSelector.getChildAt(i);
+            ToggleButton tb = (ToggleButton) mSelector.getChildAt(i);
             if (mEvent.isRepeated(i))
                 tb.setChecked(true);
             tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -106,7 +106,7 @@ public class EventFragment extends Fragment {
             });
         }
 
-        mStartButton = (Button)v.findViewById(R.id.startTimeButton);
+        mStartButton = (Button) v.findViewById(R.id.startTimeButton);
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,7 +116,7 @@ public class EventFragment extends Fragment {
                 dialog.show(fm, DIALOG_TIME);
             }
         });
-        mEndButton = (Button)v.findViewById(R.id.endTimeButton);
+        mEndButton = (Button) v.findViewById(R.id.endTimeButton);
         mEndButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,7 +130,7 @@ public class EventFragment extends Fragment {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
                 && NavUtils.getParentActivityName(getActivity()) != null)
-            ((AppCompatActivity)getActivity())
+            ((AppCompatActivity) getActivity())
                     .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
     }
@@ -174,25 +174,16 @@ public class EventFragment extends Fragment {
         int time = data.getIntExtra(TimePickerFragment.EXTRA_TIME, 0);
         switch (requestCode) {
             case REQUEST_START_TIME:
-                if (time >= mEvent.getEndTime()) {
-                    Toast.makeText(getActivity(), R.string.invalid_time, Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    mEvent.setStartTime(time);
-                }
+                if (time > mEvent.getEndTime())
+                    mEvent.setEndTime(time);
+                mEvent.setStartTime(time);
                 break;
 
             case REQUEST_END_TIME:
-                if (time <= mEvent.getStartTime()) {
-                    Toast.makeText(getActivity(), R.string.invalid_time, Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    mEvent.setEndTime(time);
-                }
+                if (time < mEvent.getStartTime())
+                    mEvent.setStartTime(time);
+                mEvent.setEndTime(time);
                 break;
-
-            default:
-                return;
         }
         mCallbacks.onEventUpdated(mEvent);
         updateDate();

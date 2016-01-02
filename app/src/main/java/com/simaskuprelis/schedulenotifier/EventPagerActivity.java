@@ -35,7 +35,7 @@ public class EventPagerActivity extends AppCompatActivity implements EventFragme
                 return mEvents.size();
             }
         });
-        UUID id = (UUID)getIntent().getSerializableExtra(EventFragment.EXTRA_EVENT_ID);
+        UUID id = (UUID) getIntent().getSerializableExtra(EventFragment.EXTRA_EVENT_ID);
         for (int i = 0; i < mEvents.size(); i++) {
             if (mEvents.get(i).getId().equals(id)) {
                 mViewPager.setCurrentItem(i);

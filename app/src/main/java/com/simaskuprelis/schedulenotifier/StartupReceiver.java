@@ -12,7 +12,7 @@ public class StartupReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean isOn = sp.getBoolean(TimerService.PREF_NOTIFY, true);
+        boolean isOn = sp.getBoolean(TimerService.PREF_NOTIFY, false);
         TimerService.setServiceAlarm(context, isOn);
     }
 }

@@ -101,7 +101,7 @@ public class EventManager {
             StringBuilder jsonString = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) jsonString.append(line);
-            JSONArray array = (JSONArray)new JSONTokener(jsonString.toString()).nextValue();
+            JSONArray array = (JSONArray) new JSONTokener(jsonString.toString()).nextValue();
             Gson gson = new Gson();
             for (int i = 0; i < array.length(); i++)
                 events.add(gson.fromJson(array.getString(i), Event.class));
@@ -113,8 +113,6 @@ public class EventManager {
         }
         return events;
     }
-
-
 
     public boolean save() {
         Collections.sort(mEvents, new Comparator<Event>() {

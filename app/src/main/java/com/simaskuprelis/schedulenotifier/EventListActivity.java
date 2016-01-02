@@ -1,6 +1,10 @@
 package com.simaskuprelis.schedulenotifier;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
@@ -25,9 +29,11 @@ public class EventListActivity extends SingleFragmentActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        EventManager.get(this).save();
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!sp.contains(TimerService.PREF_NOTIFY))
+            sp.edit().putBoolean(TimerService.PREF_NOTIFY, true).commit();
     }
 
     @Override
@@ -37,7 +43,7 @@ public class EventListActivity extends SingleFragmentActivity
         if (requestCode == REQUEST_EDIT) {
             FragmentManager fm = getSupportFragmentManager();
             EventListFragment fragment =
-                    (EventListFragment)fm.findFragmentById(R.id.fragmentContainer);
+                    (EventListFragment) fm.findFragmentById(R.id.fragmentContainer);
             fragment.updateUI();
         }
     }
@@ -64,7 +70,7 @@ public class EventListActivity extends SingleFragmentActivity
         FragmentManager fm = getSupportFragmentManager();
         if (EventManager.get(this).getEvent(event.getId()) == null)
             clearDetail(fm);
-        EventListFragment fragment = (EventListFragment)fm.findFragmentById(R.id.fragmentContainer);
+        EventListFragment fragment = (EventListFragment) fm.findFragmentById(R.id.fragmentContainer);
         fragment.updateUI();
     }
 
@@ -73,9 +79,9 @@ public class EventListActivity extends SingleFragmentActivity
         mDay = day;
         if (day == -1) return;
         FragmentManager fm = getSupportFragmentManager();
-        EventFragment fragment = (EventFragment)fm.findFragmentById(R.id.detailFragmentContainer);
+        EventFragment fragment = (EventFragment) fm.findFragmentById(R.id.detailFragmentContainer);
         if (fragment == null) return;
-        UUID id = (UUID)fragment.getArguments().getSerializable(EventFragment.EXTRA_EVENT_ID);
+        UUID id = (UUID) fragment.getArguments().getSerializable(EventFragment.EXTRA_EVENT_ID);
         if (!EventManager.get(this).getEvent(id).isRepeated(day)) clearDetail(fm);
     }
 
