@@ -1,4 +1,4 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,6 +30,11 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
+
+import com.simaskuprelis.schedulenotifier.Event;
+import com.simaskuprelis.schedulenotifier.EventManager;
+import com.simaskuprelis.schedulenotifier.R;
+import com.simaskuprelis.schedulenotifier.TimerService;
 
 import java.util.UUID;
 

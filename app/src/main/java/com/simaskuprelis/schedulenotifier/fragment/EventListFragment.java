@@ -1,4 +1,4 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.fragment;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -26,6 +26,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.simaskuprelis.schedulenotifier.Event;
+import com.simaskuprelis.schedulenotifier.EventManager;
+import com.simaskuprelis.schedulenotifier.R;
+import com.simaskuprelis.schedulenotifier.TimerService;
 
 import java.util.ArrayList;
 

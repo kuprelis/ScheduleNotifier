@@ -1,4 +1,4 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;

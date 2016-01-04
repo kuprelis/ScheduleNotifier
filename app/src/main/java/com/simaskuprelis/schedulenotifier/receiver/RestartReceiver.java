@@ -1,4 +1,4 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.receiver;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import com.simaskuprelis.schedulenotifier.TimerService;
+import com.simaskuprelis.schedulenotifier.fragment.EventFragment;
 
 public class RestartReceiver extends BroadcastReceiver {
     @Override

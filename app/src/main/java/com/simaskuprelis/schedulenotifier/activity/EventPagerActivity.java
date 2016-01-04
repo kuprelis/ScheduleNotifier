@@ -1,11 +1,15 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+
+import com.simaskuprelis.schedulenotifier.Event;
+import com.simaskuprelis.schedulenotifier.fragment.EventFragment;
+import com.simaskuprelis.schedulenotifier.EventManager;
+import com.simaskuprelis.schedulenotifier.R;
 
 import java.util.ArrayList;
 import java.util.UUID;

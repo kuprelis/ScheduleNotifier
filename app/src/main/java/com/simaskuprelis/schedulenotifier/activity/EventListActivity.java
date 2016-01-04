@@ -1,4 +1,4 @@
-package com.simaskuprelis.schedulenotifier;
+package com.simaskuprelis.schedulenotifier.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -6,6 +6,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
+import com.simaskuprelis.schedulenotifier.Event;
+import com.simaskuprelis.schedulenotifier.fragment.EventFragment;
+import com.simaskuprelis.schedulenotifier.fragment.EventListFragment;
+import com.simaskuprelis.schedulenotifier.EventManager;
+import com.simaskuprelis.schedulenotifier.R;
+import com.simaskuprelis.schedulenotifier.TimerService;
 
 import java.util.UUID;
 
