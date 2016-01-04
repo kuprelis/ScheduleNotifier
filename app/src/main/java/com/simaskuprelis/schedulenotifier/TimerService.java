@@ -85,7 +85,6 @@ public class TimerService extends IntentService {
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(text)
                     .setContentIntent(pi)
-                    .setLights(0, 0, 1)
                     .setOngoing(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build();
