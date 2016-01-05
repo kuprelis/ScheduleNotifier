@@ -14,7 +14,8 @@
     <EditText android:id="@+id/titleField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_title" />
+        android:hint="@string/enter_title"
+        android:singleLine="true" />
 
     <TextView
         style="?android:listSeparatorTextViewStyle"

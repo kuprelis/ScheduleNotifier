@@ -9,13 +9,12 @@
     <string name="friday_short">F</string>
     <string name="saturday_short">S</string>
     <string name="sunday_short">S</string>
-    
-    <string name="schedule">Event Schedule</string>
+
     <string name="new_event">New event</string>
     <string name="notifications_enable">Enable notifications</string>
     <string name="notifications_disable">Disable notifications</string>
     <string name="no_events_list">No events</string>
-    <string name="no_title">no title</string>
+    <string name="no_title">Untitled event</string>
 
     <string name="edit_event">Edit Event</string>
     <string name="enter_title">Enter a title for the event</string>
@@ -25,5 +24,8 @@
     <string name="repeat">Repeat</string>
     <string name="delete_event">Delete event</string>
     <string name="confirmation">Are you sure?</string>
-    <string name="set_time">Set the time</string>
+
+    <string name="ends">ends</string>
+    <string name="starts">starts</string>
+    <string name="time_remaining">in %d minutes</string>
 </resources>

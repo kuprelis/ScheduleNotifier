@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.simaskuprelis.schedulenotifier.activity.EventListActivity;
 
@@ -76,14 +75,22 @@ public class TimerService extends IntentService {
             postpone(0);
         } else if (timeLeft <= 60 * 60) {
             int minutes = timeLeft / 60 + (timeLeft % 60 > 0 ? 1 : 0);
-            String text = mEvent.getTitle() + (mIsStarting ? " starts" : " ends") + " in "
-                    + minutes + " minutes";
+            StringBuilder sb = new StringBuilder();
+            String title = mEvent.getTitle();
+            if (title != null && title.length() > 0)
+                sb.append(title);
+            else
+                sb.append(getString(R.string.no_title));
+            sb.append(' ');
+            sb.append(mIsStarting ? getString(R.string.starts) : getString(R.string.ends));
+            sb.append(' ');
+            sb.append(getString(R.string.time_remaining, minutes));
             Intent i = new Intent(this, EventListActivity.class);
             PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
             Notification notification = new NotificationCompat.Builder(this)
                     .setSmallIcon(getIconId(minutes))
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText(text)
+                    .setContentText(sb.toString())
                     .setContentIntent(pi)
                     .setOngoing(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -124,7 +131,6 @@ public class TimerService extends IntentService {
     }
 
     private void postpone(int seconds) {
-        Log.i(TAG, "Postponed for " + seconds);
         Intent i = new Intent(this, TimerService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

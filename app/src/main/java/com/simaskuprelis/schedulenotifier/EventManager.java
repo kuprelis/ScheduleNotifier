@@ -1,7 +1,6 @@
 package com.simaskuprelis.schedulenotifier;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -34,10 +33,8 @@ public class EventManager {
         mAppContext = appContext;
         try {
             mEvents = loadEvents();
-            Log.i(TAG, "Events loaded");
         } catch (Exception e) {
             mEvents = new ArrayList<>();
-            Log.e(TAG, "Error loading events: " + e);
         }
     }
 
@@ -127,10 +124,8 @@ public class EventManager {
         });
         try {
             saveEvents();
-            Log.i(TAG, "Events saved");
             return true;
         } catch (IOException ioe) {
-            Log.e(TAG, "Error saving events: " + ioe);
             return false;
         }
     }

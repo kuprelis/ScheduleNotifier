@@ -229,6 +229,7 @@ public class EventListFragment extends ListFragment {
         Event event = new Event();
         if (mSelection != -1) event.setRepeated(mSelection, true);
         EventManager.get(getActivity()).addEvent(event);
+        updateUI();
         mCallbacks.onEventSelected(event);
     }
 

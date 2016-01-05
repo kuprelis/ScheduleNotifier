@@ -51,9 +51,9 @@ public class EventFragment extends Fragment {
     private Button mEndButton;
     private Callbacks mCallbacks;
 
-    public static final String ACTION_RESTART_TIMER =
+    private static final String ACTION_RESTART_TIMER =
             "com.simaskuprelis.schedulenotifier.RESTART_TIMER";
-    public static final String PERM_PRIVATE = "com.simaskuprelis.schedulenotifier.PRIVATE";
+    private static final String PERM_PRIVATE = "com.simaskuprelis.schedulenotifier.PRIVATE";
     public static final String PREF_RESTART = "restart";
 
     private BroadcastReceiver mOnRestartService = new BroadcastReceiver() {
