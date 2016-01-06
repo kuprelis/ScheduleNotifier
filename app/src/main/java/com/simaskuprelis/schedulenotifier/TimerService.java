@@ -134,7 +134,7 @@ public class TimerService extends IntentService {
         Intent i = new Intent(this, TimerService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + seconds * 1000, pi);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + seconds * 1000, pi);
     }
 
     private void setEvent() {
