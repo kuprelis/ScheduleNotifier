@@ -38,7 +38,8 @@ public class EventListActivity extends SingleFragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!sp.contains(TimerService.PREF_NOTIFY))
+        if (!sp.contains(TimerService.PREF_NOTIFY) ||
+                (sp.getBoolean(TimerService.PREF_NOTIFY, false) && !TimerService.isServiceAlarmOn(this)))
             TimerService.setServiceAlarm(this, true);
     }
 
