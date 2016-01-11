@@ -7,6 +7,7 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.simaskuprelis.schedulenotifier.PRIVATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -29,7 +30,8 @@
                        android:value=".activity.EventListActivity" />
         </activity>
 
-        <service android:name=".TimerService" />
+        <service android:name=".TimerService"
+            android:exported="false" />
 
         <receiver android:name=".receiver.StartupReceiver">
             <intent-filter>
@@ -41,6 +43,13 @@
                   android:exported="false" >
             <intent-filter android:priority="-999">
                 <action android:name="com.simaskuprelis.schedulenotifier.RESTART_TIMER" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receiver.NotificationReceiver"
+                  android:exported="false" >
+            <intent-filter >
+                <action android:name="com.simaskuprelis.schedulenotifier.NOTIFY" />
             </intent-filter>
         </receiver>
 

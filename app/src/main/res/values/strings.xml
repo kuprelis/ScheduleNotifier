@@ -25,7 +25,6 @@
     <string name="delete_event">Delete event</string>
     <string name="confirmation">Are you sure?</string>
 
-    <string name="ends">ends</string>
-    <string name="starts">starts</string>
-    <string name="time_remaining">in %d minutes</string>
+    <string name="ends">ends at</string>
+    <string name="starts">starts at</string>
 </resources>

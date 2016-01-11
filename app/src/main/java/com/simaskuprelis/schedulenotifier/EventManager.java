@@ -62,6 +62,28 @@ public class EventManager {
         return null;
     }
 
+    public Event getDisplayEvent(int day, int time) {
+        if (day == -1) return null;
+        Event event = null;
+        boolean start = true;
+        for (Event e : getEvents(day)) {
+            if (time < e.getStartTime()) {
+                if (event == null || e.getStartTime() <
+                        (start ? event.getStartTime() : event.getEndTime())) {
+                    event = e;
+                    start = true;
+                }
+            } else if (time < e.getEndTime()) {
+                if (event == null || e.getEndTime() <
+                        (start ? event.getStartTime() : event.getEndTime())) {
+                    event = e;
+                    start = false;
+                }
+            }
+        }
+        return event;
+    }
+
     public ArrayList<Event> getEvents(int day) {
         ArrayList<Event> events = new ArrayList<>();
         if (day == -1) {
