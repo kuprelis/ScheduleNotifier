@@ -17,7 +17,6 @@ import com.simaskuprelis.schedulenotifier.activity.EventListActivity;
 import com.simaskuprelis.schedulenotifier.receiver.NotificationReceiver;
 
 import java.util.Calendar;
-import java.util.UUID;
 
 public class TimerService extends IntentService {
     private static final String TAG = "TimerService";
@@ -26,10 +25,12 @@ public class TimerService extends IntentService {
     private static final String PERM_PRIVATE = "com.simaskuprelis.schedulenotifier.PRIVATE";
 
     public static final String PREF_NOTIFY = "notify";
-    private static final String PREF_EVENT_ID = "mEventId";
+    private static final String PREF_EVENT_TIME = "time";
+    private static final String PREF_EVENT_TITLE = "title";
     private static final String PREF_IS_STARTING = "isStarting";
 
-    private Event mEvent;
+    private String mTitle;
+    private int mNextTime;
     private boolean mIsStarting;
 
     public TimerService() {
@@ -39,51 +40,46 @@ public class TimerService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        EventManager em = EventManager.get(this);
         Calendar cal = Calendar.getInstance();
         int time = cal.get(Calendar.HOUR_OF_DAY) * 60 * 60
                 + cal.get(Calendar.MINUTE) * 60
                 + cal.get(Calendar.SECOND);
-        mEvent = null;
-        mIsStarting = true;
-        if (sp.getString(PREF_EVENT_ID, null) != null) {
-            mEvent = em.getEvent(UUID.fromString(sp.getString(PREF_EVENT_ID, null)));
+        mNextTime = sp.getInt(PREF_EVENT_TIME, -1);
+        if (mNextTime != -1) {
+            mTitle = sp.getString(PREF_EVENT_TITLE, null);
             mIsStarting = sp.getBoolean(PREF_IS_STARTING, true);
         } else {
-            mEvent = em.getDisplayEvent(getDay(cal), time);
-            if (mEvent == null) {
-                postpone(24 * 60 * 60 - time);
-                NotificationReceiver.completeWakefulIntent(intent);
+            EventManager em = EventManager.get(this);
+            Event event = em.getDisplayEvent(getDay(cal), time);
+            if (event == null) {
+                postpone(intent, 24 * 60 * 60 - time);
                 return;
             }
-            mIsStarting = time < mEvent.getStartTime();
+            mTitle = event.getTitle();
+            mIsStarting = time < event.getStartTime();
+            mNextTime = mIsStarting ? event.getStartTime() : event.getEndTime();
             setEvent();
         }
-        int timeLeft = mIsStarting ? mEvent.getStartTime() : mEvent.getEndTime();
-        timeLeft -= time;
+        int timeLeft = mNextTime - time;
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (timeLeft <= 0) {
             nm.cancel(0);
-            mEvent = null;
+            mNextTime = -1;
             setEvent();
-            postpone(0);
+            postpone(intent, 0);
         } else if (timeLeft <= 60 * 60) {
-            int minutes = timeLeft / 60 + (timeLeft % 60 > 0 ? 1 : 0);
             StringBuilder sb = new StringBuilder();
-            String title = mEvent.getTitle();
-            if (title != null && title.length() > 0)
-                sb.append(title);
-            else
-                sb.append(getString(R.string.no_title));
+            if (mTitle != null && mTitle.length() > 0) sb.append(mTitle);
+            else sb.append(getString(R.string.no_title));
             sb.append(' ');
             sb.append(mIsStarting ? getString(R.string.starts) : getString(R.string.ends));
             sb.append(' ');
-            sb.append(Event.formatTime(mIsStarting ? mEvent.getStartTime() : mEvent.getEndTime(),
-                    DateFormat.is24HourFormat(this)));
+            sb.append(Event.formatTime(mNextTime, DateFormat.is24HourFormat(this)));
+            int iconId = getIconId(timeLeft / 60 + (timeLeft % 60 > 0 ? 1 : 0));
             Intent i = new Intent(this, EventListActivity.class);
             PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
             Notification notification = new NotificationCompat.Builder(this)
-                    .setSmallIcon(getIconId(minutes))
+                    .setSmallIcon(iconId)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(sb.toString())
                     .setContentIntent(pi)
@@ -91,11 +87,10 @@ public class TimerService extends IntentService {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build();
             nm.notify(0, notification);
-            postpone(60 - cal.get(Calendar.SECOND));
+            postpone(intent, 60 - cal.get(Calendar.SECOND));
         } else {
-            postpone(timeLeft - 60 * 60);
+            postpone(intent, timeLeft - 60 * 60);
         }
-        NotificationReceiver.completeWakefulIntent(intent);
     }
 
     public static void setServiceAlarm(Context context, boolean isOn) {
@@ -108,7 +103,7 @@ public class TimerService extends IntentService {
             PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
             am.cancel(pi);
             pi.cancel();
-            sp.putString(PREF_EVENT_ID, null);
+            sp.putInt(PREF_EVENT_TIME, -1);
             ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).cancel(0);
         }
         sp.putBoolean(PREF_NOTIFY, isOn).commit();
@@ -126,19 +121,26 @@ public class TimerService extends IntentService {
         setServiceAlarm(context, true);
     }
 
-    private void postpone(int seconds) {
+    private void postpone(Intent usedIntent, int seconds) {
         Intent i = new Intent(ACTION_NOTIFY);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-            am.setExact(AlarmManager.RTC, System.currentTimeMillis() + seconds * 1000, pi);
-        else
-            am.set(AlarmManager.RTC, System.currentTimeMillis() + seconds * 1000, pi);
+        long trigger = System.currentTimeMillis() + seconds * 1000;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AlarmManager.AlarmClockInfo aci = new AlarmManager.AlarmClockInfo(trigger, pi);
+            am.setAlarmClock(aci, pi);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            am.setExact(AlarmManager.RTC, trigger, pi);
+        } else {
+            am.set(AlarmManager.RTC, trigger, pi);
+        }
+        NotificationReceiver.completeWakefulIntent(usedIntent);
     }
 
     private void setEvent() {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putString(PREF_EVENT_ID, mEvent != null ? mEvent.getId().toString() : null)
+                .putInt(PREF_EVENT_TIME, mNextTime)
+                .putString(PREF_EVENT_TITLE, mTitle)
                 .putBoolean(PREF_IS_STARTING, mIsStarting)
                 .commit();
     }

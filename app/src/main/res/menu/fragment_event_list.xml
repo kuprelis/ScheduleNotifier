@@ -6,5 +6,6 @@
         android:title="@string/new_event"
         app:showAsAction="ifRoom|withText"/>
     <item android:id="@+id/menu_notify"
-        android:title="@string/notifications_disable"/>
+        android:title="@string/notifications_disable"
+        app:showAsAction="ifRoom|withText"/>
 </menu>
