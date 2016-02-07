@@ -41,13 +41,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.RestartReceiver"
-                  android:exported="false" >
-            <intent-filter android:priority="-999">
-                <action android:name="com.simaskuprelis.schedulenotifier.RESTART_TIMER" />
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".receiver.NotificationReceiver"
                   android:exported="false" >
             <intent-filter >

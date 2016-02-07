@@ -19,6 +19,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 public class EventManager {
@@ -27,20 +28,23 @@ public class EventManager {
 
     private static EventManager sEventManager;
     private Context mAppContext;
-    private ArrayList<Event> mEvents;
+    private List<Event> mEvents;
 
     private EventManager(Context appContext) {
         mAppContext = appContext;
         try {
-            mEvents = loadEvents();
+            mEvents = Collections.synchronizedList(loadEvents());
         } catch (Exception e) {
-            mEvents = new ArrayList<>();
+            mEvents = Collections.synchronizedList(new ArrayList<Event>());
         }
     }
 
     public static EventManager get(Context c) {
         if (sEventManager == null) {
-            sEventManager = new EventManager(c.getApplicationContext());
+            synchronized (EventManager.class) {
+                if (sEventManager == null)
+                    sEventManager = new EventManager(c.getApplicationContext());
+            }
         }
         return sEventManager;
     }
@@ -54,9 +58,11 @@ public class EventManager {
     }
 
     public Event getEvent(UUID id) {
-        for (Event e : mEvents) {
-            if (e.getId().equals(id)) {
-                return e;
+        synchronized (mEvents) {
+            for (Event e : mEvents) {
+                if (e.getId().equals(id)) {
+                    return e;
+                }
             }
         }
         return null;
@@ -66,18 +72,20 @@ public class EventManager {
         if (day == -1) return null;
         Event event = null;
         boolean start = true;
-        for (Event e : getEvents(day)) {
-            if (time < e.getStartTime()) {
-                if (event == null || e.getStartTime() <
-                        (start ? event.getStartTime() : event.getEndTime())) {
-                    event = e;
-                    start = true;
-                }
-            } else if (time < e.getEndTime()) {
-                if (event == null || e.getEndTime() <
-                        (start ? event.getStartTime() : event.getEndTime())) {
-                    event = e;
-                    start = false;
+        synchronized (mEvents) {
+            for (Event e : getEvents(day)) {
+                if (time < e.getStartTime()) {
+                    if (event == null || e.getStartTime() <
+                            (start ? event.getStartTime() : event.getEndTime())) {
+                        event = e;
+                        start = true;
+                    }
+                } else if (time < e.getEndTime()) {
+                    if (event == null || e.getEndTime() <
+                            (start ? event.getStartTime() : event.getEndTime())) {
+                        event = e;
+                        start = false;
+                    }
                 }
             }
         }
@@ -89,9 +97,11 @@ public class EventManager {
         if (day == -1) {
             events.addAll(mEvents);
         } else {
-            for (Event e : mEvents) {
-                if (e.isRepeated(day))
-                    events.add(e);
+            synchronized (mEvents) {
+                for (Event e : mEvents) {
+                    if (e.isRepeated(day))
+                        events.add(e);
+                }
             }
         }
         return events;
@@ -100,7 +110,9 @@ public class EventManager {
     private void saveEvents() throws IOException {
         Gson gson = new Gson();
         JSONArray array = new JSONArray();
-        for (Event e : mEvents) array.put(gson.toJson(e));
+        synchronized (mEvents) {
+            for (Event e : mEvents) array.put(gson.toJson(e));
+        }
         Writer writer = null;
         try {
             OutputStream out = mAppContext.openFileOutput(FILENAME, Context.MODE_PRIVATE);
@@ -134,16 +146,18 @@ public class EventManager {
     }
 
     public boolean save() {
-        Collections.sort(mEvents, new Comparator<Event>() {
-            @Override
-            public int compare(Event lhs, Event rhs) {
-                long a = lhs.getStartTime();
-                long b = rhs.getStartTime();
-                if (a > b) return 1;
-                if (a < b) return -1;
-                return 0;
-            }
-        });
+        synchronized (mEvents) {
+            Collections.sort(mEvents, new Comparator<Event>() {
+                @Override
+                public int compare(Event lhs, Event rhs) {
+                    long a = lhs.getStartTime();
+                    long b = rhs.getStartTime();
+                    if (a > b) return 1;
+                    if (a < b) return -1;
+                    return 0;
+                }
+            });
+        }
         try {
             saveEvents();
             return true;

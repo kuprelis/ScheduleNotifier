@@ -23,6 +23,7 @@ public class EventListActivity extends SingleFragmentActivity
     private static final int REQUEST_EDIT = 0;
 
     private int mDay = -1;
+    private boolean mShouldRestart = false;
 
     @Override
     protected Fragment createFragment() {
@@ -44,6 +45,12 @@ public class EventListActivity extends SingleFragmentActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        restartService();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
 
@@ -52,6 +59,8 @@ public class EventListActivity extends SingleFragmentActivity
             EventListFragment fragment =
                     (EventListFragment) fm.findFragmentById(R.id.fragmentContainer);
             fragment.updateUI();
+            mShouldRestart = true;
+            restartService();
         }
     }
 
@@ -74,9 +83,9 @@ public class EventListActivity extends SingleFragmentActivity
 
     @Override
     public void onEventUpdated(Event event) {
+        mShouldRestart = true;
         FragmentManager fm = getSupportFragmentManager();
-        if (EventManager.get(this).getEvent(event.getId()) == null)
-            clearDetail(fm);
+        if (event == null) clearDetail(fm);
         EventListFragment fragment = (EventListFragment) fm.findFragmentById(R.id.fragmentContainer);
         fragment.updateUI();
     }
@@ -92,9 +101,31 @@ public class EventListActivity extends SingleFragmentActivity
         if (!EventManager.get(this).getEvent(id).isRepeated(day)) clearDetail(fm);
     }
 
+    @Override
+    public void onEventDeleted(Event event) {
+        FragmentManager fm = getSupportFragmentManager();
+        EventFragment ef = (EventFragment) fm.findFragmentById(R.id.detailFragmentContainer);
+        mShouldRestart = true;
+        if (ef != null && ef.getEvent() == event) clearDetail(fm);
+    }
+
+    @Override
+    public void onActionModeFinished() {
+        restartService();
+    }
+
     private void clearDetail(FragmentManager fm) {
         Fragment detail = fm.findFragmentById(R.id.detailFragmentContainer);
-        if (detail != null)
+        if (detail != null) {
             fm.beginTransaction().remove(detail).commit();
+            restartService();
+        }
+    }
+
+    private void restartService() {
+        if (mShouldRestart) {
+            TimerService.restartService(this);
+            mShouldRestart = false;
+        }
     }
 }

@@ -51,18 +51,6 @@ public class EventFragment extends Fragment {
     private Button mEndButton;
     private Callbacks mCallbacks;
 
-    private static final String ACTION_RESTART_TIMER =
-            "com.simaskuprelis.schedulenotifier.RESTART_TIMER";
-    private static final String PERM_PRIVATE = "com.simaskuprelis.schedulenotifier.PRIVATE";
-    public static final String PREF_RESTART = "restart";
-
-    private BroadcastReceiver mOnRestartService = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            setResultCode(Activity.RESULT_CANCELED);
-        }
-    };
-
     public static EventFragment newInstance(UUID id) {
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_EVENT_ID, id);
@@ -156,31 +144,6 @@ public class EventFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        IntentFilter filter = new IntentFilter(ACTION_RESTART_TIMER);
-        Context c = getActivity();
-        c.registerReceiver(mOnRestartService, filter);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
-        if (!sp.contains(PREF_RESTART)) {
-            boolean restart = TimerService.isServiceAlarmOn(c);
-            if (restart) TimerService.setServiceAlarm(c, false);
-            sp.edit()
-                    .putBoolean(PREF_RESTART, restart)
-                    .commit();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Context c = getActivity();
-        c.unregisterReceiver(mOnRestartService);
-        c.sendOrderedBroadcast(new Intent(ACTION_RESTART_TIMER), PERM_PRIVATE, null, null,
-                Activity.RESULT_OK, null, null);
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_event, menu);
@@ -196,7 +159,7 @@ public class EventFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 EventManager.get(getActivity()).deleteEvent(mEvent);
-                                mCallbacks.onEventUpdated(mEvent);
+                                mCallbacks.onEventUpdated(null);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, null)
@@ -205,7 +168,7 @@ public class EventFragment extends Fragment {
 
             case android.R.id.home:
                 if (NavUtils.getParentActivityName(getActivity()) != null)
-                    NavUtils.navigateUpFromSameTask(getActivity());
+                    getActivity().finish();
                 return true;
 
             default:
@@ -238,6 +201,10 @@ public class EventFragment extends Fragment {
         boolean is24hour = DateFormat.is24HourFormat(getActivity());
         mStartButton.setText(Event.formatTime(mEvent.getStartTime(), is24hour));
         mEndButton.setText(Event.formatTime(mEvent.getEndTime(), is24hour));
+    }
+
+    public Event getEvent() {
+        return mEvent;
     }
 
     public interface Callbacks {

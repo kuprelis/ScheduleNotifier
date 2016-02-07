@@ -52,7 +52,8 @@ public class TimerService extends IntentService {
             EventManager em = EventManager.get(this);
             Event event = em.getDisplayEvent(getDay(cal), time);
             if (event == null) {
-                postpone(intent, 24 * 60 * 60 - time);
+                postpone(24 * 60 * 60 - time);
+                NotificationReceiver.completeWakefulIntent(intent);
                 return;
             }
             mTitle = event.getTitle();
@@ -66,7 +67,7 @@ public class TimerService extends IntentService {
             nm.cancel(0);
             mNextTime = -1;
             setEvent();
-            postpone(intent, 0);
+            postpone(0);
         } else if (timeLeft <= 60 * 60) {
             StringBuilder sb = new StringBuilder();
             if (mTitle != null && mTitle.length() > 0) sb.append(mTitle);
@@ -82,21 +83,24 @@ public class TimerService extends IntentService {
                     .setSmallIcon(iconId)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(sb.toString())
+                    .setShowWhen(false)
                     .setContentIntent(pi)
                     .setOngoing(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build();
             nm.notify(0, notification);
-            postpone(intent, 60 - cal.get(Calendar.SECOND));
+            postpone(60 - cal.get(Calendar.SECOND));
         } else {
-            postpone(intent, timeLeft - 60 * 60);
+            postpone(timeLeft - 60 * 60);
         }
+        NotificationReceiver.completeWakefulIntent(intent);
     }
 
-    public static void setServiceAlarm(Context context, boolean isOn) {
+    public static void setServiceAlarm(Context context, boolean turnOn) {
+        if (isServiceAlarmOn(context) == turnOn) return;
         Intent i = new Intent(ACTION_NOTIFY);
         SharedPreferences.Editor sp = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        if (isOn) {
+        if (turnOn) {
             context.sendBroadcast(i, PERM_PRIVATE);
         } else {
             AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
@@ -106,7 +110,7 @@ public class TimerService extends IntentService {
             sp.putInt(PREF_EVENT_TIME, -1);
             ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).cancel(0);
         }
-        sp.putBoolean(PREF_NOTIFY, isOn).commit();
+        sp.putBoolean(PREF_NOTIFY, turnOn).commit();
     }
 
     public static boolean isServiceAlarmOn(Context context) {
@@ -121,7 +125,7 @@ public class TimerService extends IntentService {
         setServiceAlarm(context, true);
     }
 
-    private void postpone(Intent usedIntent, int seconds) {
+    private void postpone(int seconds) {
         Intent i = new Intent(ACTION_NOTIFY);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -134,7 +138,6 @@ public class TimerService extends IntentService {
         } else {
             am.set(AlarmManager.RTC, trigger, pi);
         }
-        NotificationReceiver.completeWakefulIntent(usedIntent);
     }
 
     private void setEvent() {

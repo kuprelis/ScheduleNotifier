@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateFormat;
@@ -112,7 +113,7 @@ public class EventListFragment extends ListFragment {
                 @Override
                 public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                     mode.getMenuInflater().inflate(R.menu.event_list_item_context, menu);
-                    toggleSelector();
+                    enableSelector(false);
                     return true;
                 }
 
@@ -128,12 +129,14 @@ public class EventListFragment extends ListFragment {
                             EventAdapter ea = (EventAdapter) getListAdapter();
                             EventManager em = EventManager.get(getActivity());
                             for (int i = 0; i < ea.getCount(); i++) {
-                                if (getListView().isItemChecked(i))
-                                    em.deleteEvent(ea.getItem(i));
+                                if (getListView().isItemChecked(i)) {
+                                    Event e = ea.getItem(i);
+                                    em.deleteEvent(e);
+                                    mCallbacks.onEventDeleted(e);
+                                }
                             }
                             mode.finish();
                             updateUI();
-                            TimerService.restartService(getActivity());
                             return true;
                         default:
                             return false;
@@ -142,7 +145,8 @@ public class EventListFragment extends ListFragment {
 
                 @Override
                 public void onDestroyActionMode(ActionMode mode) {
-                    toggleSelector();
+                    enableSelector(true);
+                    mCallbacks.onActionModeFinished();
                 }
             });
         }
@@ -165,12 +169,8 @@ public class EventListFragment extends ListFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_event_list, menu);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        boolean notify = TimerService.isServiceAlarmOn(getActivity());
+        boolean notify = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getBoolean(TimerService.PREF_NOTIFY, false);
         menu.findItem(R.id.menu_notify)
                 .setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
     }
@@ -183,10 +183,10 @@ public class EventListFragment extends ListFragment {
                 return true;
 
             case R.id.menu_notify:
-                boolean notify = TimerService.isServiceAlarmOn(getActivity());
-                TimerService.setServiceAlarm(getActivity(), !notify);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                    getActivity().invalidateOptionsMenu();
+                boolean notify = !PreferenceManager.getDefaultSharedPreferences(getActivity())
+                        .getBoolean(TimerService.PREF_NOTIFY, false);
+                TimerService.setServiceAlarm(getActivity(), notify);
+                item.setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
                 return true;
 
             default:
@@ -206,8 +206,8 @@ public class EventListFragment extends ListFragment {
 
         if (item.getItemId() == R.id.menu_delete_event) {
             EventManager.get(getActivity()).deleteEvent(e);
+            mCallbacks.onEventDeleted(e);
             updateUI();
-            TimerService.restartService(getActivity());
             return true;
         }
         return super.onContextItemSelected(item);
@@ -233,16 +233,17 @@ public class EventListFragment extends ListFragment {
         mCallbacks.onEventSelected(event);
     }
 
-    private void toggleSelector() {
+    private void enableSelector(boolean enable) {
         for (int i = 0; i < mSelector.getChildCount(); i++) {
             View v = mSelector.getChildAt(i);
-            v.setEnabled(!v.isEnabled());
+            v.setEnabled(enable);
         }
     }
 
     public interface Callbacks {
         void onEventSelected(Event event);
-
+        void onEventDeleted(Event event);
+        void onActionModeFinished();
         void onDayChanged(int day);
     }
 
