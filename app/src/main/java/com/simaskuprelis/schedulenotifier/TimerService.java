@@ -134,9 +134,9 @@ public class TimerService extends IntentService {
             AlarmManager.AlarmClockInfo aci = new AlarmManager.AlarmClockInfo(trigger, pi);
             am.setAlarmClock(aci, pi);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC, trigger, pi);
+            am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi);
         } else {
-            am.set(AlarmManager.RTC, trigger, pi);
+            am.set(AlarmManager.RTC_WAKEUP, trigger, pi);
         }
     }
 
