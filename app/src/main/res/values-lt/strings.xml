@@ -9,7 +9,7 @@
     <string name="friday_short">P</string>
     <string name="saturday_short">Š</string>
     <string name="sunday_short">S</string>
-    <string name="new_event">Naujas įvykis</string>
+    <string name="add_event">Pridėti įvykį</string>
     <string name="notifications_enable">Įjungti pranešimus</string>
     <string name="notifications_disable">Išjungti pranešimus</string>
     <string name="no_events_list">Nėra įvykių</string>

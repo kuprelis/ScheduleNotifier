@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black_btn_text">#1C1C1C</color>
+    <color name="primary">#607D8B</color>
+    <color name="primary_dark">#455A64</color>
+    <color name="primary_light">#CFD8DC</color>
+    <color name="accent">#009688</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="divider">#BDBDBD</color>
     <color name="blue100">#BBDEFB</color>
-    <color name="blue500">#2196F3</color>
-    <color name="blue800">#1565C0</color>
     <color name="red800">#C62828</color>
     <color name="gray_btn">#D6D7D7</color>
-    <color name="gray_txt">#6D6D6D</color>
 </resources>

@@ -3,10 +3,10 @@ package com.simaskuprelis.schedulenotifier.fragment;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateFormat;
 import android.view.ActionMode;
@@ -40,7 +40,8 @@ public class EventListFragment extends ListFragment {
 
     private Callbacks mCallbacks;
     private ArrayList<Event> mEvents;
-    private Button mNewEventButton;
+    private Button mAddEventButton;
+    private FloatingActionButton mAddEventFAB;
     private LinearLayout mSelector;
     private int mSelection;
 
@@ -91,20 +92,22 @@ public class EventListFragment extends ListFragment {
             });
         }
 
-        mNewEventButton = (Button) v.findViewById(R.id.new_event);
-        mNewEventButton.setOnClickListener(new OnClickListener() {
+        OnClickListener addEventListener = new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 createEvent();
             }
-        });
+        };
+
+        mAddEventButton = (Button) v.findViewById(R.id.add_event);
+        mAddEventButton.setOnClickListener(addEventListener);
+
+        mAddEventFAB = (FloatingActionButton) v.findViewById(R.id.add_event_FAB);
+        mAddEventFAB.setOnClickListener(addEventListener);
 
         ListView lv = (ListView) v.findViewById(android.R.id.list);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            registerForContextMenu(lv);
-        } else {
-            lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-            lv.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        lv.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
                 @Override
                 public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 
@@ -149,7 +152,6 @@ public class EventListFragment extends ListFragment {
                     mCallbacks.onActionModeFinished();
                 }
             });
-        }
         return v;
     }
 
@@ -178,10 +180,6 @@ public class EventListFragment extends ListFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_new_event:
-                createEvent();
-                return true;
-
             case R.id.menu_notify:
                 boolean notify = !PreferenceManager.getDefaultSharedPreferences(getActivity())
                         .getBoolean(TimerService.PREF_NOTIFY, false);
@@ -268,8 +266,8 @@ public class EventListFragment extends ListFragment {
             else
                 titleView.setText(R.string.no_title);
 
-            int highlight = getResources().getColor(R.color.blue500);
-            int lowlight = getResources().getColor(R.color.gray_txt);
+            int highlight = getResources().getColor(R.color.accent);
+            int lowlight = getResources().getColor(R.color.secondary_text);
 
             LinearLayout display = (LinearLayout) convertView.findViewById(R.id.weekday_display);
             for (int i = 0; i < display.getChildCount(); i++) {

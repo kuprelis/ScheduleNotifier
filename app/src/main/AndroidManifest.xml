@@ -25,10 +25,7 @@
         </activity>
 
         <activity android:label="@string/edit_event"
-            android:name=".activity.EventPagerActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                       android:value=".activity.EventListActivity" />
-        </activity>
+            android:name=".activity.EventPagerActivity"/>
 
         <service android:name=".TimerService"
             android:exported="false" />
@@ -47,7 +44,5 @@
                 <action android:name="com.simaskuprelis.schedulenotifier.NOTIFY" />
             </intent-filter>
         </receiver>
-
     </application>
-
 </manifest>
