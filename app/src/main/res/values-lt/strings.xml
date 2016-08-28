@@ -12,7 +12,7 @@
     <string name="add_event">Pridėti įvykį</string>
     <string name="notifications_enable">Įjungti pranešimus</string>
     <string name="notifications_disable">Išjungti pranešimus</string>
-    <string name="no_events_list">Nėra įvykių</string>
+    <string name="no_events">Nėra įvykių</string>
     <string name="no_title">Be pavadinimo</string>
     <string name="edit_event">Redaguoti</string>
     <string name="enter_title">Įveskite įvykio pavadinimą</string>

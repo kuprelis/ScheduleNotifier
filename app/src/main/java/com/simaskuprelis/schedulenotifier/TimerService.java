@@ -50,7 +50,7 @@ public class TimerService extends IntentService {
             mIsStarting = sp.getBoolean(PREF_IS_STARTING, true);
         } else {
             EventManager em = EventManager.get(this);
-            Event event = em.getDisplayEvent(getDay(cal), time);
+            Event event = em.getDisplayEvent(Utils.getDay(cal), time);
             if (event == null) {
                 postpone(24 * 60 * 60 - time);
                 NotificationReceiver.completeWakefulIntent(intent);
@@ -75,7 +75,7 @@ public class TimerService extends IntentService {
             sb.append(' ');
             sb.append(mIsStarting ? getString(R.string.starts) : getString(R.string.ends));
             sb.append(' ');
-            sb.append(Event.formatTime(mNextTime, DateFormat.is24HourFormat(this)));
+            sb.append(Utils.formatTime(mNextTime, DateFormat.is24HourFormat(this)));
             int iconId = getIconId(timeLeft / 60 + (timeLeft % 60 > 0 ? 1 : 0));
             Intent i = new Intent(this, EventListActivity.class);
             PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
@@ -148,151 +148,69 @@ public class TimerService extends IntentService {
                 .commit();
     }
 
-    private int getDay(Calendar cal) {
-        switch (cal.get(Calendar.DAY_OF_WEEK)) {
-            case Calendar.MONDAY:
-                return 0;
-            case Calendar.TUESDAY:
-                return 1;
-            case Calendar.WEDNESDAY:
-                return 2;
-            case Calendar.THURSDAY:
-                return 3;
-            case Calendar.FRIDAY:
-                return 4;
-            case Calendar.SATURDAY:
-                return 5;
-            case Calendar.SUNDAY:
-                return 6;
-            default:
-                return -1;
-        }
-    }
-
     private int getIconId(int level) {
         switch (level) {
-            case 1:
-                return R.drawable.ic_timer_1;
-            case 2:
-                return R.drawable.ic_timer_2;
-            case 3:
-                return R.drawable.ic_timer_3;
-            case 4:
-                return R.drawable.ic_timer_4;
-            case 5:
-                return R.drawable.ic_timer_5;
-            case 6:
-                return R.drawable.ic_timer_6;
-            case 7:
-                return R.drawable.ic_timer_7;
-            case 8:
-                return R.drawable.ic_timer_8;
-            case 9:
-                return R.drawable.ic_timer_9;
-            case 10:
-                return R.drawable.ic_timer_10;
-            case 11:
-                return R.drawable.ic_timer_11;
-            case 12:
-                return R.drawable.ic_timer_12;
-            case 13:
-                return R.drawable.ic_timer_13;
-            case 14:
-                return R.drawable.ic_timer_14;
-            case 15:
-                return R.drawable.ic_timer_15;
-            case 16:
-                return R.drawable.ic_timer_16;
-            case 17:
-                return R.drawable.ic_timer_17;
-            case 18:
-                return R.drawable.ic_timer_18;
-            case 19:
-                return R.drawable.ic_timer_19;
-            case 20:
-                return R.drawable.ic_timer_20;
-            case 21:
-                return R.drawable.ic_timer_21;
-            case 22:
-                return R.drawable.ic_timer_22;
-            case 23:
-                return R.drawable.ic_timer_23;
-            case 24:
-                return R.drawable.ic_timer_24;
-            case 25:
-                return R.drawable.ic_timer_25;
-            case 26:
-                return R.drawable.ic_timer_26;
-            case 27:
-                return R.drawable.ic_timer_27;
-            case 28:
-                return R.drawable.ic_timer_28;
-            case 29:
-                return R.drawable.ic_timer_29;
-            case 30:
-                return R.drawable.ic_timer_30;
-            case 31:
-                return R.drawable.ic_timer_31;
-            case 32:
-                return R.drawable.ic_timer_32;
-            case 33:
-                return R.drawable.ic_timer_33;
-            case 34:
-                return R.drawable.ic_timer_34;
-            case 35:
-                return R.drawable.ic_timer_35;
-            case 36:
-                return R.drawable.ic_timer_36;
-            case 37:
-                return R.drawable.ic_timer_37;
-            case 38:
-                return R.drawable.ic_timer_38;
-            case 39:
-                return R.drawable.ic_timer_39;
-            case 40:
-                return R.drawable.ic_timer_40;
-            case 41:
-                return R.drawable.ic_timer_41;
-            case 42:
-                return R.drawable.ic_timer_42;
-            case 43:
-                return R.drawable.ic_timer_43;
-            case 44:
-                return R.drawable.ic_timer_44;
-            case 45:
-                return R.drawable.ic_timer_45;
-            case 46:
-                return R.drawable.ic_timer_46;
-            case 47:
-                return R.drawable.ic_timer_47;
-            case 48:
-                return R.drawable.ic_timer_48;
-            case 49:
-                return R.drawable.ic_timer_49;
-            case 50:
-                return R.drawable.ic_timer_50;
-            case 51:
-                return R.drawable.ic_timer_51;
-            case 52:
-                return R.drawable.ic_timer_52;
-            case 53:
-                return R.drawable.ic_timer_53;
-            case 54:
-                return R.drawable.ic_timer_54;
-            case 55:
-                return R.drawable.ic_timer_55;
-            case 56:
-                return R.drawable.ic_timer_56;
-            case 57:
-                return R.drawable.ic_timer_57;
-            case 58:
-                return R.drawable.ic_timer_58;
-            case 59:
-                return R.drawable.ic_timer_59;
-            case 60:
-                return R.drawable.ic_timer_60;
-            default:
-                return R.drawable.ic_timer_60;
+            case 1: return R.drawable.ic_timer_1;
+            case 2: return R.drawable.ic_timer_2;
+            case 3: return R.drawable.ic_timer_3;
+            case 4: return R.drawable.ic_timer_4;
+            case 5: return R.drawable.ic_timer_5;
+            case 6: return R.drawable.ic_timer_6;
+            case 7: return R.drawable.ic_timer_7;
+            case 8: return R.drawable.ic_timer_8;
+            case 9: return R.drawable.ic_timer_9;
+            case 10: return R.drawable.ic_timer_10;
+            case 11: return R.drawable.ic_timer_11;
+            case 12: return R.drawable.ic_timer_12;
+            case 13: return R.drawable.ic_timer_13;
+            case 14: return R.drawable.ic_timer_14;
+            case 15: return R.drawable.ic_timer_15;
+            case 16: return R.drawable.ic_timer_16;
+            case 17: return R.drawable.ic_timer_17;
+            case 18: return R.drawable.ic_timer_18;
+            case 19: return R.drawable.ic_timer_19;
+            case 20: return R.drawable.ic_timer_20;
+            case 21: return R.drawable.ic_timer_21;
+            case 22: return R.drawable.ic_timer_22;
+            case 23: return R.drawable.ic_timer_23;
+            case 24: return R.drawable.ic_timer_24;
+            case 25: return R.drawable.ic_timer_25;
+            case 26: return R.drawable.ic_timer_26;
+            case 27: return R.drawable.ic_timer_27;
+            case 28: return R.drawable.ic_timer_28;
+            case 29: return R.drawable.ic_timer_29;
+            case 30: return R.drawable.ic_timer_30;
+            case 31: return R.drawable.ic_timer_31;
+            case 32: return R.drawable.ic_timer_32;
+            case 33: return R.drawable.ic_timer_33;
+            case 34: return R.drawable.ic_timer_34;
+            case 35: return R.drawable.ic_timer_35;
+            case 36: return R.drawable.ic_timer_36;
+            case 37: return R.drawable.ic_timer_37;
+            case 38: return R.drawable.ic_timer_38;
+            case 39: return R.drawable.ic_timer_39;
+            case 40: return R.drawable.ic_timer_40;
+            case 41: return R.drawable.ic_timer_41;
+            case 42: return R.drawable.ic_timer_42;
+            case 43: return R.drawable.ic_timer_43;
+            case 44: return R.drawable.ic_timer_44;
+            case 45: return R.drawable.ic_timer_45;
+            case 46: return R.drawable.ic_timer_46;
+            case 47: return R.drawable.ic_timer_47;
+            case 48: return R.drawable.ic_timer_48;
+            case 49: return R.drawable.ic_timer_49;
+            case 50: return R.drawable.ic_timer_50;
+            case 51: return R.drawable.ic_timer_51;
+            case 52: return R.drawable.ic_timer_52;
+            case 53: return R.drawable.ic_timer_53;
+            case 54: return R.drawable.ic_timer_54;
+            case 55: return R.drawable.ic_timer_55;
+            case 56: return R.drawable.ic_timer_56;
+            case 57: return R.drawable.ic_timer_57;
+            case 58: return R.drawable.ic_timer_58;
+            case 59: return R.drawable.ic_timer_59;
+            case 60: return R.drawable.ic_timer_60;
+            default: return R.drawable.ic_timer_60;
         }
     }
 }

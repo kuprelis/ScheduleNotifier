@@ -26,7 +26,7 @@ public class EventPagerActivity extends AppCompatActivity implements EventFragme
         mViewPager = new ViewPager(this);
         mViewPager.setId(R.id.viewPager);
         setContentView(mViewPager);
-        mEvents = EventManager.get(this).getEvents(getIntent().getIntExtra(EXTRA_DAY, -1));
+        mEvents = EventManager.get(this).getEvents(getIntent().getIntExtra(EXTRA_DAY, 0));
         mViewPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {

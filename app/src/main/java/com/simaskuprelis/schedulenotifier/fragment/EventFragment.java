@@ -27,6 +27,7 @@ import android.widget.ToggleButton;
 import com.simaskuprelis.schedulenotifier.Event;
 import com.simaskuprelis.schedulenotifier.EventManager;
 import com.simaskuprelis.schedulenotifier.R;
+import com.simaskuprelis.schedulenotifier.Utils;
 
 import java.util.UUID;
 
@@ -61,7 +62,7 @@ public class EventFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         UUID id = (UUID) getArguments().getSerializable(EXTRA_EVENT_ID);
-        mEvent = EventManager.get(getActivity()).getEvent(id);
+        mEvent = EventManager.get(getContext()).getEvent(id);
         setHasOptionsMenu(true);
     }
 
@@ -131,6 +132,12 @@ public class EventFragment extends Fragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_event, menu);
@@ -140,12 +147,12 @@ public class EventFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_delete_event:
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getContext())
                         .setTitle(R.string.confirmation)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                EventManager.get(getActivity()).deleteEvent(mEvent);
+                                EventManager.get(getContext()).deleteEvent(mEvent);
                                 mCallbacks.onEventUpdated(null);
                             }
                         })
@@ -180,9 +187,9 @@ public class EventFragment extends Fragment {
     }
 
     private void updateDate() {
-        boolean is24hour = DateFormat.is24HourFormat(getActivity());
-        mStartButton.setText(Event.formatTime(mEvent.getStartTime(), is24hour));
-        mEndButton.setText(Event.formatTime(mEvent.getEndTime(), is24hour));
+        boolean is24hour = DateFormat.is24HourFormat(getContext());
+        mStartButton.setText(Utils.formatTime(mEvent.getStartTime(), is24hour));
+        mEndButton.setText(Utils.formatTime(mEvent.getEndTime(), is24hour));
     }
 
     public Event getEvent() {

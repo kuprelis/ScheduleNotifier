@@ -13,7 +13,7 @@
     <string name="add_event">Add event</string>
     <string name="notifications_enable">Enable notifications</string>
     <string name="notifications_disable">Disable notifications</string>
-    <string name="no_events_list">No events</string>
+    <string name="no_events">No events</string>
     <string name="no_title">Untitled event</string>
 
     <string name="edit_event">Edit Event</string>

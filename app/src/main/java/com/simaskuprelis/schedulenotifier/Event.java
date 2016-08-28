@@ -56,25 +56,4 @@ public class Event {
     public UUID getId() {
         return mId;
     }
-
-    public static String formatTime(int time, boolean is24hour) {
-        StringBuilder sb = new StringBuilder();
-        time /= 60;
-        int hour = time / 60;
-        int minute = time % 60;
-        String ampm = "";
-        if (is24hour) {
-            if (hour < 10) sb.append('0');
-        } else {
-            ampm = hour / 12 == 0 ? " AM" : " PM";
-            if (hour > 12) hour = hour % 12;
-            if (hour == 0) hour = 12;
-        }
-        sb.append(hour);
-        sb.append(':');
-        if (minute < 10) sb.append('0');
-        sb.append(minute);
-        sb.append(ampm);
-        return sb.toString();
-    }
 }
