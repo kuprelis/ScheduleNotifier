@@ -7,7 +7,4 @@
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="divider">#BDBDBD</color>
-    <color name="blue100">#BBDEFB</color>
-    <color name="red800">#C62828</color>
-    <color name="gray_btn">#D6D7D7</color>
 </resources>

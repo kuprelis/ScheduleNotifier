@@ -2,7 +2,10 @@ package com.simaskuprelis.schedulenotifier;
 
 import java.util.Calendar;
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {}
+
     public static int getDay(Calendar cal) {
         switch (cal.get(Calendar.DAY_OF_WEEK)) {
             case Calendar.MONDAY: return 0;

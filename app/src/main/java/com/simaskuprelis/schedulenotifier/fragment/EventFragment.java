@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
@@ -94,20 +95,21 @@ public class EventFragment extends Fragment {
 
         mSelector = (LinearLayout) v.findViewById(R.id.weekday_selector);
         for (int i = 0; i < mSelector.getChildCount(); i++) {
-            ToggleButton tb = (ToggleButton) mSelector.getChildAt(i);
+            FrameLayout fl = (FrameLayout) mSelector.getChildAt(i);
+            ToggleButton tb = (ToggleButton) fl.getChildAt(0);
             if (mEvent.isRepeated(i))
                 tb.setChecked(true);
+            final int index = i;
             tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    int index = mSelector.indexOfChild(buttonView);
                     mEvent.setRepeated(index, isChecked);
                     mCallbacks.onEventUpdated(mEvent);
                 }
             });
         }
 
-        mStartButton = (Button) v.findViewById(R.id.startTimeButton);
+        mStartButton = (Button) v.findViewById(R.id.button_start_time);
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,7 +119,7 @@ public class EventFragment extends Fragment {
                 dialog.show(fm, DIALOG_TIME);
             }
         });
-        mEndButton = (Button) v.findViewById(R.id.endTimeButton);
+        mEndButton = (Button) v.findViewById(R.id.button_end_time);
         mEndButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

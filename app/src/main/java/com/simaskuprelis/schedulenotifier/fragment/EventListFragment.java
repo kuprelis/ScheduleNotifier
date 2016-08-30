@@ -118,7 +118,7 @@ public class EventListFragment extends Fragment {
             StringBuilder sb = new StringBuilder();
             boolean is24hour = DateFormat.is24HourFormat(getContext());
             sb.append(Utils.formatTime(e.getStartTime(), is24hour));
-            sb.append(" - ");
+            sb.append(getString(R.string.time_range_separator));
             sb.append(Utils.formatTime(e.getEndTime(), is24hour));
             holder.mTime.setText(sb.toString());
 

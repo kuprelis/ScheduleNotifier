@@ -2,75 +2,123 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
     android:orientation="vertical"
     android:focusable="true"
     android:focusableInTouchMode="true" >
 
-    <TextView
-        style="?android:listSeparatorTextViewStyle"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/title" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <EditText android:id="@+id/titleField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/enter_title"
-        android:singleLine="true"
-        android:inputType="textCapSentences" />
-
-    <TextView
-        style="?android:listSeparatorTextViewStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/repeat" />
-
-    <include layout="@layout/weekday_selector"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"/>
+        <EditText
+            android:id="@+id/titleField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:hint="@string/title_hint"
+            android:singleLine="true"
+            android:inputType="textCapSentences" />
+    </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/weekday_selector"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
         android:orientation="horizontal">
 
-        <TextView
-            style="?android:listSeparatorTextViewStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/start_time" />
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/monday_short"
+                          android:textOn="@string/monday_short"/>
+        </FrameLayout>
 
-        <TextView
-            style="?android:listSeparatorTextViewStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/end_time" />
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/tuesday_short"
+                          android:textOn="@string/tuesday_short"/>
+        </FrameLayout>
+
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/wednesday_short"
+                          android:textOn="@string/wednesday_short"/>
+        </FrameLayout>
+
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/thursday_short"
+                          android:textOn="@string/thursday_short"/>
+        </FrameLayout>
+
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/friday_short"
+                          android:textOn="@string/friday_short"/>
+        </FrameLayout>
+
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/saturday_short"
+                          android:textOn="@string/saturday_short"/>
+        </FrameLayout>
+
+        <FrameLayout style="@style/ButtonFrame">
+            <ToggleButton style="@style/WeekdayButton"
+                          android:textOff="@string/sunday_short"
+                          android:textOn="@string/sunday_short"/>
+        </FrameLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:orientation="horizontal">
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical|end"
+        android:orientation="vertical">
 
-        <Button android:id="@+id/startTimeButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="20sp"/>
-
-        <Button android:id="@+id/endTimeButton"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="20sp"/>
+            android:orientation="horizontal"
+            android:gravity="bottom">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/starts"
+                android:textStyle="italic"/>
+
+            <Button
+                android:id="@+id/button_start_time"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="42sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ends"
+                android:textStyle="italic"/>
+
+            <Button
+                android:id="@+id/button_end_time"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="42sp"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
