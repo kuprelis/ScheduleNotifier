@@ -30,8 +30,8 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         mTime /= 60;
         int hour = mTime / 60;
         int minute = mTime % 60;
-        TimePickerDialog tpd = new TimePickerDialog(getActivity(), this, hour, minute,
-                DateFormat.is24HourFormat(getActivity()));
+        TimePickerDialog tpd = new TimePickerDialog(getContext(), this, hour, minute,
+                DateFormat.is24HourFormat(getContext()));
         tpd.setTitle(null);
         return tpd;
     }

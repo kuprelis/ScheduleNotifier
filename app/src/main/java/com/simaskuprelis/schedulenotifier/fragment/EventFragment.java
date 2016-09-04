@@ -2,20 +2,13 @@ package com.simaskuprelis.schedulenotifier.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -28,13 +21,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 import com.simaskuprelis.schedulenotifier.Event;
 import com.simaskuprelis.schedulenotifier.EventManager;
 import com.simaskuprelis.schedulenotifier.R;
-import com.simaskuprelis.schedulenotifier.TimerService;
+import com.simaskuprelis.schedulenotifier.Utils;
 
 import java.util.UUID;
 
@@ -69,7 +63,7 @@ public class EventFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         UUID id = (UUID) getArguments().getSerializable(EXTRA_EVENT_ID);
-        mEvent = EventManager.get(getActivity()).getEvent(id);
+        mEvent = EventManager.get(getContext()).getEvent(id);
         setHasOptionsMenu(true);
     }
 
@@ -101,20 +95,21 @@ public class EventFragment extends Fragment {
 
         mSelector = (LinearLayout) v.findViewById(R.id.weekday_selector);
         for (int i = 0; i < mSelector.getChildCount(); i++) {
-            ToggleButton tb = (ToggleButton) mSelector.getChildAt(i);
+            FrameLayout fl = (FrameLayout) mSelector.getChildAt(i);
+            ToggleButton tb = (ToggleButton) fl.getChildAt(0);
             if (mEvent.isRepeated(i))
                 tb.setChecked(true);
+            final int index = i;
             tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    int index = mSelector.indexOfChild(buttonView);
                     mEvent.setRepeated(index, isChecked);
                     mCallbacks.onEventUpdated(mEvent);
                 }
             });
         }
 
-        mStartButton = (Button) v.findViewById(R.id.startTimeButton);
+        mStartButton = (Button) v.findViewById(R.id.button_start_time);
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,7 +119,7 @@ public class EventFragment extends Fragment {
                 dialog.show(fm, DIALOG_TIME);
             }
         });
-        mEndButton = (Button) v.findViewById(R.id.endTimeButton);
+        mEndButton = (Button) v.findViewById(R.id.button_end_time);
         mEndButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,12 +130,13 @@ public class EventFragment extends Fragment {
             }
         });
         updateDate();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-                && NavUtils.getParentActivityName(getActivity()) != null)
-            ((AppCompatActivity) getActivity())
-                    .getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return v;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -153,22 +149,17 @@ public class EventFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_delete_event:
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getContext())
                         .setTitle(R.string.confirmation)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                EventManager.get(getActivity()).deleteEvent(mEvent);
+                                EventManager.get(getContext()).deleteEvent(mEvent);
                                 mCallbacks.onEventUpdated(null);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();
-                return true;
-
-            case android.R.id.home:
-                if (NavUtils.getParentActivityName(getActivity()) != null)
-                    getActivity().finish();
                 return true;
 
             default:
@@ -198,9 +189,9 @@ public class EventFragment extends Fragment {
     }
 
     private void updateDate() {
-        boolean is24hour = DateFormat.is24HourFormat(getActivity());
-        mStartButton.setText(Event.formatTime(mEvent.getStartTime(), is24hour));
-        mEndButton.setText(Event.formatTime(mEvent.getEndTime(), is24hour));
+        boolean is24hour = DateFormat.is24HourFormat(getContext());
+        mStartButton.setText(Utils.formatTime(mEvent.getStartTime(), is24hour));
+        mEndButton.setText(Utils.formatTime(mEvent.getEndTime(), is24hour));
     }
 
     public Event getEvent() {

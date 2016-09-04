@@ -9,19 +9,15 @@
     <string name="friday_short">P</string>
     <string name="saturday_short">Š</string>
     <string name="sunday_short">S</string>
-    <string name="new_event">Naujas įvykis</string>
     <string name="notifications_enable">Įjungti pranešimus</string>
     <string name="notifications_disable">Išjungti pranešimus</string>
-    <string name="no_events_list">Nėra įvykių</string>
+    <string name="no_events">Nėra įvykių</string>
     <string name="no_title">Be pavadinimo</string>
     <string name="edit_event">Redaguoti</string>
-    <string name="enter_title">Įveskite įvykio pavadinimą</string>
-    <string name="title">Pavadinimas</string>
-    <string name="start_time">Pradžia</string>
-    <string name="end_time">Pabaiga</string>
-    <string name="repeat">Kartojimas</string>
+    <string name="title_hint">Pavadinimas</string>
     <string name="delete_event">Ištrinti įvykį</string>
     <string name="confirmation">Ar tikrai?</string>
     <string name="ends">baigiasi</string>
     <string name="starts">prasideda</string>
+    <string name="time_range_separator">" – "</string>
 </resources>

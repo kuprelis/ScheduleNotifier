@@ -1,48 +1,47 @@
 package com.simaskuprelis.schedulenotifier.fragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
-import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.simaskuprelis.schedulenotifier.Event;
 import com.simaskuprelis.schedulenotifier.EventManager;
 import com.simaskuprelis.schedulenotifier.R;
-import com.simaskuprelis.schedulenotifier.TimerService;
+import com.simaskuprelis.schedulenotifier.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class EventListFragment extends ListFragment {
+public class EventListFragment extends Fragment {
     private static final String TAG = "EventListFragment";
+    private static final String KEY_DAY = "day";
 
     private Callbacks mCallbacks;
+
     private ArrayList<Event> mEvents;
-    private Button mNewEventButton;
-    private LinearLayout mSelector;
-    private int mSelection;
+    private int mDay;
+
+    private RecyclerView mRecyclerView;
+    private TextView mEmptyListText;
+
+    public static EventListFragment newInstance(int day) {
+        Bundle args = new Bundle();
+        args.putInt(KEY_DAY, day);
+        EventListFragment fragment = new EventListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -54,109 +53,23 @@ public class EventListFragment extends ListFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSelection = -1;
-        mEvents = EventManager.get(getActivity()).getEvents(mSelection);
-        setListAdapter(new EventAdapter(mEvents));
-        setHasOptionsMenu(true);
+        mDay = getArguments().getInt(KEY_DAY);
+        mEvents = EventManager.get(getContext()).getEvents(mDay);
         setRetainInstance(true);
     }
 
-    @TargetApi(11)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_event_list, container, false);
 
-        mSelector = (LinearLayout) v.findViewById(R.id.weekday_selector);
-        for (int i = 0; i < mSelector.getChildCount(); i++) {
-            ToggleButton tb = (ToggleButton) mSelector.getChildAt(i);
-            if (i == mSelection) tb.setChecked(true);
-            tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (!isChecked) {
-                        if (mSelector.indexOfChild(buttonView) == mSelection) {
-                            mSelection = -1;
-                            updateUI();
-                        }
-                    } else {
-                        mSelection = mSelector.indexOfChild(buttonView);
-                        for (int i = 0; i < mSelector.getChildCount(); i++) {
-                            if (i != mSelection)
-                                ((ToggleButton) mSelector.getChildAt(i)).setChecked(false);
-                        }
-                        updateUI();
-                    }
-                    mCallbacks.onDayChanged(mSelection);
-                }
-            });
-        }
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setAdapter(new EventListAdapter(mEvents));
 
-        mNewEventButton = (Button) v.findViewById(R.id.new_event);
-        mNewEventButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createEvent();
-            }
-        });
+        mEmptyListText = (TextView) v.findViewById(R.id.empty_list_text);
+        mEmptyListText.setVisibility(mEvents.size() > 0 ? View.GONE : View.VISIBLE);
 
-        ListView lv = (ListView) v.findViewById(android.R.id.list);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            registerForContextMenu(lv);
-        } else {
-            lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-            lv.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-                @Override
-                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
-                }
-
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    mode.getMenuInflater().inflate(R.menu.event_list_item_context, menu);
-                    enableSelector(false);
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.menu_delete_event:
-                            EventAdapter ea = (EventAdapter) getListAdapter();
-                            EventManager em = EventManager.get(getActivity());
-                            for (int i = 0; i < ea.getCount(); i++) {
-                                if (getListView().isItemChecked(i)) {
-                                    Event e = ea.getItem(i);
-                                    em.deleteEvent(e);
-                                    mCallbacks.onEventDeleted(e);
-                                }
-                            }
-                            mode.finish();
-                            updateUI();
-                            return true;
-                        default:
-                            return false;
-                    }
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                    enableSelector(true);
-                    mCallbacks.onActionModeFinished();
-                }
-            });
-        }
         return v;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        EventManager.get(getActivity()).save();
     }
 
     @Override
@@ -165,130 +78,74 @@ public class EventListFragment extends ListFragment {
         mCallbacks = null;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_event_list, menu);
-        boolean notify = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getBoolean(TimerService.PREF_NOTIFY, false);
-        menu.findItem(R.id.menu_notify)
-                .setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_new_event:
-                createEvent();
-                return true;
-
-            case R.id.menu_notify:
-                boolean notify = !PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .getBoolean(TimerService.PREF_NOTIFY, false);
-                TimerService.setServiceAlarm(getActivity(), notify);
-                item.setTitle(notify ? R.string.notifications_disable : R.string.notifications_enable);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        getActivity().getMenuInflater().inflate(R.menu.event_list_item_context, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        int pos = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
-        Event e = ((EventAdapter) getListAdapter()).getItem(pos);
-
-        if (item.getItemId() == R.id.menu_delete_event) {
-            EventManager.get(getActivity()).deleteEvent(e);
-            mCallbacks.onEventDeleted(e);
-            updateUI();
-            return true;
-        }
-        return super.onContextItemSelected(item);
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Event e = ((EventAdapter) getListAdapter()).getItem(position);
-        mCallbacks.onEventSelected(e);
-    }
-
-    public void updateUI() {
-        mEvents.clear();
-        mEvents.addAll(EventManager.get(getActivity()).getEvents(mSelection));
-        ((EventAdapter) getListAdapter()).notifyDataSetChanged();
-    }
-
-    private void createEvent() {
-        Event event = new Event();
-        if (mSelection != -1) event.setRepeated(mSelection, true);
-        EventManager.get(getActivity()).addEvent(event);
-        updateUI();
-        mCallbacks.onEventSelected(event);
-    }
-
-    private void enableSelector(boolean enable) {
-        for (int i = 0; i < mSelector.getChildCount(); i++) {
-            View v = mSelector.getChildAt(i);
-            v.setEnabled(enable);
-        }
-    }
-
     public interface Callbacks {
-        void onEventSelected(Event event);
-        void onEventDeleted(Event event);
-        void onActionModeFinished();
-        void onDayChanged(int day);
+        void onEventSelected(Event event, int day);
     }
 
-    private class EventAdapter extends ArrayAdapter<Event> {
-        public EventAdapter(ArrayList<Event> events) {
-            super(getActivity(), 0, events);
+    private class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {
+        private List<Event> mEvents;
+
+        public EventListAdapter(List<Event> events) {
+            mEvents = events;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = getActivity().getLayoutInflater()
-                        .inflate(R.layout.list_item_event, null);
-            }
+        public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_event, parent, false);
+            return new EventViewHolder(v);
+        }
 
-            Event e = getItem(position);
+        @Override
+        public void onBindViewHolder(EventViewHolder holder, final int position) {
+            final Event e = mEvents.get(position);
 
-            TextView titleView = (TextView) convertView.findViewById(R.id.titleTextView);
             String title = e.getTitle();
             if (title != null && title.length() > 0)
-                titleView.setText(e.getTitle());
+                holder.mTitle.setText(e.getTitle());
             else
-                titleView.setText(R.string.no_title);
+                holder.mTitle.setText(R.string.no_title);
 
-            int highlight = getResources().getColor(R.color.blue500);
-            int lowlight = getResources().getColor(R.color.gray_txt);
-
-            LinearLayout display = (LinearLayout) convertView.findViewById(R.id.weekday_display);
-            for (int i = 0; i < display.getChildCount(); i++) {
-                TextView tv = (TextView) display.getChildAt(i);
+            Resources res = getContext().getResources();
+            for (int i = 0; i < holder.mDisplay.getChildCount(); i++) {
+                TextView tv = (TextView) holder.mDisplay.getChildAt(i);
                 if (e.isRepeated(i))
-                    tv.setTextColor(highlight);
+                    tv.setTextColor(res.getColor(R.color.accent));
                 else
-                    tv.setTextColor(lowlight);
+                    tv.setTextColor(res.getColor(R.color.secondary_text));
             }
 
-            TextView timeView = (TextView) convertView.findViewById(R.id.timeTextView);
             StringBuilder sb = new StringBuilder();
-            boolean is24hour = DateFormat.is24HourFormat(getActivity());
-            sb.append(Event.formatTime(e.getStartTime(), is24hour));
-            sb.append(" - ");
-            sb.append(Event.formatTime(e.getEndTime(), is24hour));
-            timeView.setText(sb.toString());
+            boolean is24hour = DateFormat.is24HourFormat(getContext());
+            sb.append(Utils.formatTime(e.getStartTime(), is24hour));
+            sb.append(getString(R.string.time_range_separator));
+            sb.append(Utils.formatTime(e.getEndTime(), is24hour));
+            holder.mTime.setText(sb.toString());
 
-            return convertView;
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCallbacks.onEventSelected(e, mDay);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return mEvents.size();
+        }
+
+        public class EventViewHolder extends RecyclerView.ViewHolder {
+            protected TextView mTitle;
+            protected TextView mTime;
+            protected LinearLayout mDisplay;
+
+            public EventViewHolder(View v) {
+                super(v);
+                mTitle =  (TextView) v.findViewById(R.id.list_item_title);
+                mTime = (TextView) v.findViewById(R.id.list_item_time);
+                mDisplay = (LinearLayout) v.findViewById(R.id.weekday_display);
+            }
         }
     }
 }
