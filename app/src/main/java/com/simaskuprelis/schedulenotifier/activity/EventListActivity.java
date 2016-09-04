@@ -74,17 +74,6 @@ public class EventListActivity extends SingleFragmentActivity
         openEvent(event, day);
     }
 
-    @Override
-    public void onEventDeleted(Event event) {
-        //TODO implement actionmode
-        /*
-        FragmentManager fm = getSupportFragmentManager();
-        EventFragment ef = (EventFragment) fm.findFragmentById(R.id.detailFragmentContainer);
-        mShouldRestart = true;
-        if (ef != null && ef.getEvent() == event) clearDetail(fm);
-        */
-    }
-
 
     @Override
     public void onEventCreated(Event event, int day) {

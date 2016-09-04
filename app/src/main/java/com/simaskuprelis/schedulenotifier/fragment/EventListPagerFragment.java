@@ -57,7 +57,7 @@ public class EventListPagerFragment extends Fragment {
 
         mPager = (ViewPager) v.findViewById(R.id.list_pager);
         mAdapter = new ListPagerAdapter(getChildFragmentManager());
-        updateUI();
+        mPager.setAdapter(mAdapter);
         mPager.setCurrentItem(Utils.getDay(Calendar.getInstance()));
 
         mTabs = (TabLayout) v.findViewById(R.id.pager_tabs);
@@ -113,7 +113,9 @@ public class EventListPagerFragment extends Fragment {
     }
 
     public void updateUI() {
+        int index = mPager.getCurrentItem();
         mPager.setAdapter(mAdapter);
+        mPager.setCurrentItem(index);
     }
 
     public interface Callbacks {

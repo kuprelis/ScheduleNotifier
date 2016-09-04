@@ -55,6 +55,7 @@ public class EventListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mDay = getArguments().getInt(KEY_DAY);
         mEvents = EventManager.get(getContext()).getEvents(mDay);
+        setRetainInstance(true);
     }
 
     @Override
@@ -79,7 +80,6 @@ public class EventListFragment extends Fragment {
 
     public interface Callbacks {
         void onEventSelected(Event event, int day);
-        void onEventDeleted(Event event);
     }
 
     private class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder> {

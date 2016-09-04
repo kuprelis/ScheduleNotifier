@@ -40,10 +40,12 @@ public class TimerService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
         Calendar cal = Calendar.getInstance();
         int time = cal.get(Calendar.HOUR_OF_DAY) * 60 * 60
                 + cal.get(Calendar.MINUTE) * 60
                 + cal.get(Calendar.SECOND);
+
         mNextTime = sp.getInt(PREF_EVENT_TIME, -1);
         if (mNextTime != -1) {
             mTitle = sp.getString(PREF_EVENT_TITLE, null);
@@ -61,8 +63,10 @@ public class TimerService extends IntentService {
             mNextTime = mIsStarting ? event.getStartTime() : event.getEndTime();
             setEvent();
         }
-        int timeLeft = mNextTime - time;
+
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        int timeLeft = mNextTime - time;
         if (timeLeft <= 0) {
             nm.cancel(0);
             mNextTime = -1;
@@ -76,9 +80,12 @@ public class TimerService extends IntentService {
             sb.append(mIsStarting ? getString(R.string.starts) : getString(R.string.ends));
             sb.append(' ');
             sb.append(Utils.formatTime(mNextTime, DateFormat.is24HourFormat(this)));
+
             int iconId = getIconId(timeLeft / 60 + (timeLeft % 60 > 0 ? 1 : 0));
+
             Intent i = new Intent(this, EventListActivity.class);
             PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+
             Notification notification = new NotificationCompat.Builder(this)
                     .setSmallIcon(iconId)
                     .setContentTitle(getString(R.string.app_name))
@@ -89,17 +96,21 @@ public class TimerService extends IntentService {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build();
             nm.notify(0, notification);
+
             postpone(60 - cal.get(Calendar.SECOND));
         } else {
             postpone(timeLeft - 60 * 60);
         }
+
         NotificationReceiver.completeWakefulIntent(intent);
     }
 
     public static void setServiceAlarm(Context context, boolean turnOn) {
         if (isServiceAlarmOn(context) == turnOn) return;
+
         Intent i = new Intent(ACTION_NOTIFY);
         SharedPreferences.Editor sp = PreferenceManager.getDefaultSharedPreferences(context).edit();
+
         if (turnOn) {
             context.sendBroadcast(i, PERM_PRIVATE);
         } else {
@@ -110,6 +121,7 @@ public class TimerService extends IntentService {
             sp.putInt(PREF_EVENT_TIME, -1);
             ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).cancel(0);
         }
+
         sp.putBoolean(PREF_NOTIFY, turnOn).commit();
     }
 
@@ -130,6 +142,7 @@ public class TimerService extends IntentService {
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         long trigger = System.currentTimeMillis() + seconds * 1000;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AlarmManager.AlarmClockInfo aci = new AlarmManager.AlarmClockInfo(trigger, pi);
             am.setAlarmClock(aci, pi);
